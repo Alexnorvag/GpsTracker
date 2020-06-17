@@ -1,5 +1,5 @@
 {
-  "name": "GpsTracker",
+  "name": "gps-tracker",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -26,5 +26,8 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "resolutions": {
+    "@react-native-community/cli-debugger-ui": "4.7.0"
   }
 }
