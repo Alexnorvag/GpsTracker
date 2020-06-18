@@ -73,7 +73,7 @@ const Map = () => {
           </Text>
         </TouchableOpacity>
       </View> */}
-      <BottomToolbar styles={[styles.controlsContainer]}/>
+      <BottomToolbar styles={[styles.controlsContainer]} />
     </View>
   );
 };
@@ -88,16 +88,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   controlsContainer: {
-    borderRadius: 30,
+    // borderRadius: 30,
     position: 'absolute',
-    bottom: 16,
-    left: 48,
-    right: 48,
-    paddingVertical: 16,
-    minHeight: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    // paddingVertical: 16,
+    minHeight: 70,
+    // alignItems: 'center',
+    justifyContent: 'flex-end',
+    // backgroundColor: 'white',
   },
 });
 
