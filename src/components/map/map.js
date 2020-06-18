@@ -1,11 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import {onSortOptions} from '../../utils';
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
+
+MapboxGL.setTelemetryEnabled(false);
 
 const trackingOptions = Object.keys(MapboxGL.UserTrackingModes)
   .map((key) => ({
@@ -21,34 +29,45 @@ const trackingOptions = Object.keys(MapboxGL.UserTrackingModes)
   .sort(onSortOptions);
 
 const Map = () => {
-  const [showUserLocation, setShowUserLocation] = useState(false);
-  const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] = useState(
-    false,
-  );
-  const [
-    userSelectedUserTrackingMode,
-    setUserSelectedUserTrackingMode,
-  ] = useState(trackingOptions[1].data);
-  const [currentTrackingMode, setCurrentTrackingMode] = useState(
-    trackingOptions[1].data,
-  );
+  // const [showUserLocation, setShowUserLocation] = useState(false);
+  // const [showsUserHeadingIndicator, setShowsUserHeadingIndicator] = useState(
+  //   false,
+  // );
+  const [userLocation, setUserLocation] = useState([]);
+  // const [
+  //   userSelectedUserTrackingMode,
+  //   setUserSelectedUserTrackingMode,
+  // ] = useState(trackingOptions[0].data);
+  // const [currentTrackingMode, setCurrentTrackingMode] = useState(
+  //   trackingOptions[0].data,
+  // );
 
-  const onToggleUserLocation = () => setShowUserLocation((l) => !l);
+  // const onToggleUserLocation = () => setShowUserLocation((l) => !l);
 
-  const onToggleHeadingIndicator = () => setShowsUserHeadingIndicator((l) => !l);
+  // const onToggleHeadingIndicator = () =>
+  //   setShowsUserHeadingIndicator((l) => !l);
 
-  userTrackingModeText = () => {
-    switch (currentTrackingMode) {
-      case MapboxGL.UserTrackingModes.Follow:
-        return 'Follow';
-      case MapboxGL.UserTrackingModes.FollowWithCourse:
-        return 'FollowWithCourse';
-      case MapboxGL.UserTrackingModes.FollowWithHeading:
-        return 'FollowWithHeading';
-      default:
-        return 'None';
-    }
+  const onUserLocationUpdate = (location) => {
+    const {longitude, latitude} = location.coords;
+
+    setUserLocation([longitude, latitude]);
+
+    console.log('location: ', location.timestamp);
+    // console.log('location: ', location.coords.longitude);
   };
+
+  // userTrackingModeText = () => {
+  //   switch (currentTrackingMode) {
+  //     case MapboxGL.UserTrackingModes.Follow:
+  //       return 'Follow';
+  //     case MapboxGL.UserTrackingModes.FollowWithCourse:
+  //       return 'FollowWithCourse';
+  //     case MapboxGL.UserTrackingModes.FollowWithHeading:
+  //       return 'FollowWithHeading';
+  //     default:
+  //       return 'None';
+  //   }
+  // };
 
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(false);
@@ -60,24 +79,18 @@ const Map = () => {
         styleURL={'mapbox://styles/alexnorvag/ck9efq0oz2d0x1ioftrtazzyz'}
         style={styles.map}>
         <MapboxGL.UserLocation
-          visible={showUserLocation}
-          showsUserHeadingIndicator={showsUserHeadingIndicator}
+          visible={true}
+          showsUserHeadingIndicator={true}
+          onUpdate={onUserLocationUpdate}
         />
         <MapboxGL.Camera
-          defaultSettings={{
-            centerCoordinate: [-111.8678, 40.2866],
-            zoomLevel: 2,
-          }}
-          followUserLocation={userSelectedUserTrackingMode !== 'none'}
-          followUserMode={
-            userSelectedUserTrackingMode !== 'none'
-              ? userSelectedUserTrackingMode
-              : 'normal'
-          }
+          zoomLevel={3}
+          followUserMode={'normal'}
+          followUserLocation
         />
       </MapboxGL.MapView>
 
-      <View style={[styles.controlsContainer, {bottom: 80}]}>
+      {/* <View style={[styles.controlsContainer, {bottom: 80}]}>
         <TouchableOpacity
           onPress={() => {
             console.log('press');
@@ -101,7 +114,7 @@ const Map = () => {
             {showsUserHeadingIndicator ? 'true' : 'false'}
           </Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 };

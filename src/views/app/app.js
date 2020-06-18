@@ -27,9 +27,8 @@ const App = () => {
         setIsFetchingAndroidPermission(false);
       }
     };
-
     fetchAndroidPermission();
-  }, [isAndroidPermissionGranted]);
+  }, []);
 
   return (
     <View style={styles.page}>
