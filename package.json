@@ -12,7 +12,8 @@
   "dependencies": {
     "@react-native-mapbox-gl/maps": "^8.1.0-rc.1",
     "react": "16.11.0",
-    "react-native": "0.62.2"
+    "react-native": "0.62.2",
+    "react-native-bottom-toolbar": "^4.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
