@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from 'react';
+import {Provider} from 'react-redux';
 import {View, Text, StyleSheet, SafeAreaView} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
+import store from '../../redux/store';
 import {IS_ANDROID} from '../../utils';
 import Map from '../../components/map/map';
 
@@ -22,7 +24,7 @@ const App = () => {
     const fetchAndroidPermission = async () => {
       if (IS_ANDROID) {
         const isGranted = await MapboxGL.requestAndroidLocationPermissions();
-        console.log('IS GRANTED: ', isGranted);
+
         setIsAndroidPermissionGranted(isGranted);
         setIsFetchingAndroidPermission(false);
       }
@@ -31,24 +33,26 @@ const App = () => {
   }, []);
 
   return (
-    <View style={styles.page}>
-      {IS_ANDROID && !isAndroidPermissionGranted ? (
-        isFetchingAndroidPermission ? null : (
-          <SafeAreaView
-            style={{backgroundColor: 'blue'}}
-            forceInset={{top: 'always'}}>
-            <View>
-              <Text>
-                You need to accept location permissions in order to use this
-                example applications
-              </Text>
-            </View>
-          </SafeAreaView>
-        )
-      ) : (
-        <Map />
-      )}
-    </View>
+    <Provider store={store}>
+      <View style={styles.page}>
+        {IS_ANDROID && !isAndroidPermissionGranted ? (
+          isFetchingAndroidPermission ? null : (
+            <SafeAreaView
+              style={{backgroundColor: 'blue'}}
+              forceInset={{top: 'always'}}>
+              <View>
+                <Text>
+                  You need to accept location permissions in order to use this
+                  example applications
+                </Text>
+              </View>
+            </SafeAreaView>
+          )
+        ) : (
+          <Map />
+        )}
+      </View>
+    </Provider>
   );
 };
 
@@ -60,11 +64,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#005b96',
   },
-  // mapControls: {
-  //   alignSelf: 'stretch',
-  //   height: 70,
-  //   backgroundColor: 'green',
-  // },
 });
 
 export default App;

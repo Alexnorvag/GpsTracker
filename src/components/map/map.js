@@ -1,12 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  ActivityIndicator,
-} from 'react-native';
+import React, {useEffect, useState, useMemo, useCallback, useRef} from 'react';
+import {View, StyleSheet, Alert} from 'react-native';
+
+import {useSelector, useDispatch} from 'react-redux';
+import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
+
 import MapboxGL from '@react-native-mapbox-gl/maps';
+
 import BottomToolbar from './bottom-toolbar/toolbar';
 import {IS_ANDROID} from '../../utils';
 
@@ -14,19 +13,43 @@ MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
 
-MapboxGL.setTelemetryEnabled(false);
+const shape = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [76.343981, 10.279141],
+      },
+    },
+  ],
+};
 
 const Map = () => {
-  const [userLocation, setUserLocation] = useState([]);
+  const coords = useSelector(selectAllCoords);
+  const userLocation = useRef([]);
 
   const onUserLocationUpdate = (location) => {
     if (location) {
-      console.log('location: ', location);
-      const {longitude, latitude} = location.coords;
+      const {latitude, longitude} = location.coords;
 
-      setUserLocation([longitude, latitude]);
+      userLocation.current = {latitude, longitude};
+    } else {
+      Alert.alert(
+        'Location failed',
+        'No location found. Turn on gps to continue.',
+        [{text: 'OK'}],
+        {cancelable: true},
+      );
     }
   };
+
+  const getCurrentLocation = () => userLocation.current;
+
+  useEffect(() => {
+    console.log('MAP coords: ', coords);
+  }, [coords]);
 
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(false);
@@ -47,36 +70,42 @@ const Map = () => {
           followUserMode={'normal'}
           followUserLocation
         />
+
+        <MapboxGL.ShapeSource
+          id="line1"
+          shape={{
+            type: 'FeatureCollection',
+            features: coords.map((coord) => ({
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [coord.lng, coord.lat],
+              },
+            })),
+          }}>
+          <MapboxGL.CircleLayer
+            id="sf2010CircleFill"
+            sourceLayerID="sf2010"
+            style={tyles}
+          />
+        </MapboxGL.ShapeSource>
       </MapboxGL.MapView>
 
-      {/* <View style={[styles.controlsContainer, {bottom: 80}]}>
-        <TouchableOpacity
-          onPress={() => {
-            console.log('press');
-          }}>
-          <Text>User Tracking Mode: {userTrackingModeText()}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={[styles.controlsContainer, {bottom: 150}]}>
-        <TouchableOpacity onPress={onToggleUserLocation}>
-          <Text>
-            Toggle User Location: {showUserLocation ? 'true' : 'false'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={[styles.controlsContainer, {bottom: 220}]}>
-        <TouchableOpacity onPress={onToggleHeadingIndicator}>
-          <Text>
-            Toggle user heading indicator:{' '}
-            {showsUserHeadingIndicator ? 'true' : 'false'}
-          </Text>
-        </TouchableOpacity>
-      </View> */}
-      <BottomToolbar styles={[styles.controlsContainer]} />
+      <BottomToolbar
+        styles={[styles.controlsContainer]}
+        currentLocation={getCurrentLocation}
+      />
     </View>
   );
+};
+
+const tyles = {
+  visibility: 'visible',
+  circleRadius: 5,
+  circleColor: '#A9A9A9',
+  circleStrokeColor: '#A9A9A9',
+  circleStrokeWidth: 5,
+  circleOpacity: 1,
 };
 
 const styles = StyleSheet.create({
