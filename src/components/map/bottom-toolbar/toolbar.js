@@ -1,7 +1,8 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
+import {IS_ANDROID} from '../../../utils';
 
 const Toolbar = ({styles}) => {
   return (
@@ -41,7 +42,7 @@ const stylese = StyleSheet.create({
   wrapper: {
     flex: 1,
     alignItems: 'center',
-    paddingBottom: 10,
+    paddingBottom: IS_ANDROID ? 0 : 10,
   },
 });
 
