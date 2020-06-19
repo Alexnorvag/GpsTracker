@@ -41,7 +41,7 @@ const stylese = StyleSheet.create({
   wrapper: {
     flex: 1,
     alignItems: 'center',
-    //  backgroundColor: "red"
+    paddingBottom: 10,
   },
 });
 

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import BottomToolbar from './bottom-toolbar/toolbar';
+import {IS_ANDROID} from '../../utils';
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
@@ -88,16 +89,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   controlsContainer: {
-    // borderRadius: 30,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    // paddingVertical: 16,
-    minHeight: 70,
-    // alignItems: 'center',
+    minHeight: IS_ANDROID ? 70 : 90,
     justifyContent: 'flex-end',
-    // backgroundColor: 'white',
   },
 });
 
