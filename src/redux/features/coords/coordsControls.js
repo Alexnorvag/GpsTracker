@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 
 import {useDispatch} from 'react-redux';
@@ -45,7 +45,7 @@ const CoordsControls = ({currentLocation}) => {
           // } else {
           //   startHandler();
           // }
-          const {latitude: lat, longitude: lng} = currentLocation();
+          const {longitude: lng, latitude: lat} = currentLocation();
 
           dispatch(
             addCoord({

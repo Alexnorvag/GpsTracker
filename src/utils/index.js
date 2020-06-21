@@ -13,3 +13,14 @@ export function onSortOptions(a, b) {
 
   return 0;
 }
+
+export const createShapeSource = (coordinates) => ({
+  type: 'FeatureCollection',
+  features: coordinates.map((coordinate) => ({
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [coordinate.lng, coordinate.lat],
+    },
+  })),
+});
