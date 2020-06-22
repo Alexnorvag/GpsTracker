@@ -19,8 +19,6 @@ const Map = () => {
     followUserMode: 'normal',
     followUserLocation: true,
   });
-  const [isUserFollowing, setIsUserFollowing] = useState(true);
-  const [currentTrackingMode, setCurrentTrackingMode] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(14);
   const coords = useSelector(selectAllCoords);
   const mapRef = useRef();
@@ -44,15 +42,11 @@ const Map = () => {
 
   const getCurrentLocation = () => userLocation.current;
 
-  const setFollow = () => {
-    // console.log("isUserFollowing: ", isUserFollowing)
-    // setCurrentTrackingMode()
-    // console.log('Foollow mode: ');
+  const setFollow = () =>
     setFollowOptions({
       followUserMode: 'normal',
       followUserLocation: true,
     });
-  };
 
   const getCurrentZoomLevel = () => mapRef.current.getZoom();
 
@@ -64,6 +58,7 @@ const Map = () => {
     //   followUserLocation: false,
     //   zoomLevel: currentZoom + value
     // });
+    // cameraRef.current.zoomTo(currentZoom + value, 0);
     // cameraRef.current.zoomTo(currentZoom + value, 400);
     // cameraRef.current.setCamera({
     //   followUserLocation: true,
@@ -105,26 +100,16 @@ const Map = () => {
           ref={cameraRef}
           zoomLevel={zoomLevel}
           followUserMode={followOptions.followUserMode}
-          // followUserMode={'normal'}
-          // followUserLocation={isUserFollowing}
           followUserLocation={followOptions.followUserLocation}
           onUserTrackingModeChange={(e) => {
             const {followUserMode, followUserLocation} = e.nativeEvent.payload;
-            console.log('follow user mode: ', followUserMode);
-            console.log('follow user location: ', followUserLocation);
-            // setCurrentTrackingMode(followUserMode || 'none');
-            // if (followUserMode) {
+
+            if (!followUserMode) {
               setFollowOptions({
-                followUserLocation: true,
-                followUserMode: 'course',
+                followUserMode,
+                followUserLocation,
               });
-            // } 
-            // else {
-              // setFollowOptions({
-              //   followUserLocation: true,
-              //   followUserMode: null,
-              // });
-            // }
+            }
           }}
         />
 
