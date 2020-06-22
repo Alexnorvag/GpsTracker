@@ -19,6 +19,7 @@ const Map = () => {
     followUserMode: 'normal',
     followUserLocation: true,
   });
+  const [isUserFollowing, setIsUserFollowing] = useState(true);
   const [currentTrackingMode, setCurrentTrackingMode] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(14);
   const coords = useSelector(selectAllCoords);
@@ -43,8 +44,8 @@ const Map = () => {
 
   const getCurrentLocation = () => userLocation.current;
 
-  const setFollowLocation = () => {
-    console.log("currentTrackingMode: ", currentTrackingMode)
+  const setFollow = () => {
+    // console.log("isUserFollowing: ", isUserFollowing)
     // setCurrentTrackingMode()
     // console.log('Foollow mode: ');
     setFollowOptions({
@@ -85,10 +86,6 @@ const Map = () => {
         styleURL={'mapbox://styles/alexnorvag/ck9efq0oz2d0x1ioftrtazzyz'}
         style={styles.map}
         zoomEnabled={true}
-        // onRegionDidChange={(e) => {
-        // console.log('e: ', e);
-        // setFollowLocation(false);
-        // }}
         // onRegionWillChange={() => {
         //   console.log('will change');
         // }}
@@ -108,15 +105,18 @@ const Map = () => {
           ref={cameraRef}
           zoomLevel={zoomLevel}
           followUserMode={followOptions.followUserMode}
+          // followUserMode={'normal'}
+          // followUserLocation={isUserFollowing}
           followUserLocation={followOptions.followUserLocation}
           onUserTrackingModeChange={(e) => {
-            const {followUserMode} = e.nativeEvent.payload;
-            // console.log('follow user mode: ', followUserMode);
-            setCurrentTrackingMode(followUserMode || 'none');
+            const {followUserMode, followUserLocation} = e.nativeEvent.payload;
+            console.log('follow user mode: ', followUserMode);
+            console.log('follow user location: ', followUserLocation);
+            // setCurrentTrackingMode(followUserMode || 'none');
             // if (followUserMode) {
               setFollowOptions({
                 followUserLocation: true,
-                followUserMode: 'normal',
+                followUserMode: 'course',
               });
             // } 
             // else {
@@ -142,10 +142,6 @@ const Map = () => {
         currentLocation={getCurrentLocation}
       />
 
-      {/* <TouchableOpacity onPress={changeFollowSettings}>
-        <Text>text</Text>
-      </TouchableOpacity> */}
-
       <MapControls
         style={styles.mapControlsContainer}
         buttonsProps={{
@@ -160,7 +156,7 @@ const Map = () => {
             },
             {
               icon: {name: 'enviromento', size: 25, color: '#000'},
-              onPress: setFollowLocation,
+              onPress: setFollow,
             },
           ],
         }}
