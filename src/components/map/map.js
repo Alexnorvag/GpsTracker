@@ -19,6 +19,7 @@ const Map = () => {
     followUserMode: 'normal',
     followUserLocation: true,
   });
+  const [currentTrackingMode, setCurrentTrackingMode] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(14);
   const coords = useSelector(selectAllCoords);
   const mapRef = useRef();
@@ -42,19 +43,22 @@ const Map = () => {
 
   const getCurrentLocation = () => userLocation.current;
 
-  const changeFollowSettings = () => {
-    setFollowOptions((opts) => ({
-      ...opts,
-      followUserLocation: !opts.followUserLocation,
-    }));
+  const setFollowLocation = () => {
+    console.log("currentTrackingMode: ", currentTrackingMode)
+    // setCurrentTrackingMode()
+    // console.log('Foollow mode: ');
+    setFollowOptions({
+      followUserMode: 'normal',
+      followUserLocation: true,
+    });
   };
 
   const getCurrentZoomLevel = () => mapRef.current.getZoom();
 
   const increaseZoomByValue = async (value = 1) => {
     const currentZoom = await getCurrentZoomLevel();
-    console.log('mapRef: ', mapRef.current);
-    console.log('cameraRef: ', cameraRef.current);
+    // console.log('mapRef: ', mapRef.current);
+    // console.log('cameraRef: ', cameraRef.current);
     // cameraRef.current.setCamera({
     //   followUserLocation: false,
     //   zoomLevel: currentZoom + value
@@ -81,8 +85,20 @@ const Map = () => {
         styleURL={'mapbox://styles/alexnorvag/ck9efq0oz2d0x1ioftrtazzyz'}
         style={styles.map}
         zoomEnabled={true}
-        // onRegionWillChange={(e) => {console.log("e: ", e)}}
-        >
+        // onRegionDidChange={(e) => {
+        // console.log('e: ', e);
+        // setFollowLocation(false);
+        // }}
+        // onRegionWillChange={() => {
+        //   console.log('will change');
+        // }}
+        // onRegionDidChange={() => {
+        //   console.log('did change');
+        // }}
+        // onRegionIsChanging={() => {
+        //   console.log('is changing');
+        // }}
+      >
         <MapboxGL.UserLocation
           visible={true}
           showsUserHeadingIndicator={true}
@@ -93,9 +109,23 @@ const Map = () => {
           zoomLevel={zoomLevel}
           followUserMode={followOptions.followUserMode}
           followUserLocation={followOptions.followUserLocation}
-          onUserTrackingModeChange={(e) =>
-            console.log('e: ', e.nativeEvent.payload.followUserLocation)
-          }
+          onUserTrackingModeChange={(e) => {
+            const {followUserMode} = e.nativeEvent.payload;
+            // console.log('follow user mode: ', followUserMode);
+            setCurrentTrackingMode(followUserMode || 'none');
+            // if (followUserMode) {
+              setFollowOptions({
+                followUserLocation: true,
+                followUserMode: 'normal',
+              });
+            // } 
+            // else {
+              // setFollowOptions({
+              //   followUserLocation: true,
+              //   followUserMode: null,
+              // });
+            // }
+          }}
         />
 
         <MapboxGL.ShapeSource id="polylines" shape={createShapeSource(coords)}>
@@ -130,7 +160,7 @@ const Map = () => {
             },
             {
               icon: {name: 'enviromento', size: 25, color: '#000'},
-              onPress: changeFollowSettings,
+              onPress: setFollowLocation,
             },
           ],
         }}
