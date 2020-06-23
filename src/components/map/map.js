@@ -41,29 +41,37 @@ const Map = () => {
   };
 
   const getCurrentLocation = () => userLocation.current;
+  const getCurrentZoomLevel = () => mapRef.current.getZoom();
 
-  const setFollow = () =>
+  const setFollow = async () => {
+    const zoom = await getCurrentZoomLevel();
     setFollowOptions({
       followUserMode: 'normal',
       followUserLocation: true,
     });
-
-  const getCurrentZoomLevel = () => mapRef.current.getZoom();
-
-  const increaseZoomByValue = async (value = 1) => {
-    const currentZoom = await getCurrentZoomLevel();
-    // console.log('mapRef: ', mapRef.current);
-    // console.log('cameraRef: ', cameraRef.current);
+    // const {longitude, latitude} = getCurrentLocation();
+    // console.log('getCurrentLocation: ', getCurrentLocation());
     // cameraRef.current.setCamera({
-    //   followUserLocation: false,
-    //   zoomLevel: currentZoom + value
-    // });
-    // cameraRef.current.zoomTo(currentZoom + value, 0);
-    // cameraRef.current.zoomTo(currentZoom + value, 400);
-    // cameraRef.current.setCamera({
+    //   centerCoordinate: [longitude, latitude],
+    //   zoomLevel: 14,
+    //   animationDuration: 400,
+    //   followUserMode: 'normal',
     //   followUserLocation: true,
     // });
-    setZoomLevel(currentZoom + value);
+    cameraRef.current.zoomTo(zoom, 400);
+  };
+
+  const increaseZoomByValue = async (value = 1) => {
+    const zoom = await getCurrentZoomLevel();
+    setFollowOptions({followUserMode: null, followUserLocation: false});
+    cameraRef.current.zoomTo(zoom + value, 400);
+    // cameraRef.current.setCamera({
+    //   // centerCoordinate: [longitude, latitude],
+    //   zoomLevel: 14,
+    //   animationDuration: 400,
+    //   followUserMode: 'normal',
+    //   followUserLocation: true,
+    // });
   };
 
   useEffect(() => {
@@ -80,17 +88,7 @@ const Map = () => {
         ref={mapRef}
         styleURL={'mapbox://styles/alexnorvag/ck9efq0oz2d0x1ioftrtazzyz'}
         style={styles.map}
-        zoomEnabled={true}
-        // onRegionWillChange={() => {
-        //   console.log('will change');
-        // }}
-        // onRegionDidChange={() => {
-        //   console.log('did change');
-        // }}
-        // onRegionIsChanging={() => {
-        //   console.log('is changing');
-        // }}
-      >
+        zoomEnabled={true}>
         <MapboxGL.UserLocation
           visible={true}
           showsUserHeadingIndicator={true}
@@ -98,18 +96,22 @@ const Map = () => {
         />
         <MapboxGL.Camera
           ref={cameraRef}
-          zoomLevel={zoomLevel}
           followUserMode={followOptions.followUserMode}
           followUserLocation={followOptions.followUserLocation}
-          onUserTrackingModeChange={(e) => {
+          onUserTrackingModeChange={async (e) => {
             const {followUserMode, followUserLocation} = e.nativeEvent.payload;
-
+            console.log(followUserLocation, followUserMode);
+            // console.log(followOptions);
+            // setZoomLevel(zoom);
+            // cameraRef.current.zoomTo(zoom);
             if (!followUserMode) {
               setFollowOptions({
                 followUserMode,
                 followUserLocation,
               });
             }
+            // const zoom = await mapRef.current.getZoom();
+            // cameraRef.current.zoomTo(zoom);
           }}
         />
 
@@ -132,15 +134,15 @@ const Map = () => {
         buttonsProps={{
           buttons: [
             {
-              icon: {name: 'plus', size: 25, color: '#000'},
+              icon: {name: 'plus', size: 30, color: '#000'},
               onPress: () => increaseZoomByValue(1),
             },
             {
-              icon: {name: 'minus', size: 25, color: '#000'},
+              icon: {name: 'minus', size: 30, color: '#000'},
               onPress: () => increaseZoomByValue(-1),
             },
             {
-              icon: {name: 'enviromento', size: 25, color: '#000'},
+              icon: {name: 'enviromento', size: 30, color: '#000'},
               onPress: setFollow,
             },
           ],
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
   },
   mapControlsContainer: {
     position: 'absolute',
-    bottom: 100,
+    bottom: IS_ANDROID ? 100 : 110,
     right: 0,
     flex: 1,
     backgroundColor: '#ffffff',
