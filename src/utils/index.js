@@ -24,3 +24,20 @@ export const createShapeSource = (coordinates) => ({
     },
   })),
 });
+
+export const createPolylineShapeSource = (coordinates) => ({
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: coordinates.map((coordinate) => [
+          coordinate.lng,
+          coordinate.lat,
+        ]),
+      },
+    },
+  ],
+});

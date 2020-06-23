@@ -8,7 +8,11 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 
 import BottomToolbar from './bottom-toolbar/toolbar';
 import MapControls from './controls/controls';
-import {IS_ANDROID, createShapeSource} from '../../utils';
+import {
+  IS_ANDROID,
+  createShapeSource,
+  createPolylineShapeSource,
+} from '../../utils';
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
@@ -19,7 +23,7 @@ const Map = () => {
     followUserMode: 'normal',
     followUserLocation: true,
   });
-  const [zoomLevel, setZoomLevel] = useState(14);
+  // const [zoomLevel, setZoomLevel] = useState(14);
   const coords = useSelector(selectAllCoords);
   const mapRef = useRef();
   const cameraRef = useRef();
@@ -76,6 +80,8 @@ const Map = () => {
 
   useEffect(() => {
     console.log('MAP coords: ', coords);
+
+    console.log('qfqf ', createPolylineShapeSource(coords));
   }, [coords]);
 
   useEffect(() => {
@@ -114,11 +120,18 @@ const Map = () => {
             // cameraRef.current.zoomTo(zoom);
           }}
         />
-
-        <MapboxGL.ShapeSource id="polylines" shape={createShapeSource(coords)}>
+        
+        <MapboxGL.ShapeSource
+          id="polylines"
+          shape={createPolylineShapeSource(coords)}>
+          <MapboxGL.LineLayer
+            id="line-layer"
+            sourceLayerID="polylines"
+            style={{lineColor: 'red'}}
+          />
           <MapboxGL.CircleLayer
-            id="polylinePoints"
-            sourceLayerID="points"
+            id="point-layer"
+            sourceLayerID="polylines"
             style={tyles}
           />
         </MapboxGL.ShapeSource>
