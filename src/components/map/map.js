@@ -18,6 +18,13 @@ MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
 
+export const CONCENTRIC_COLORS = [
+  'rgba(129, 197, 64, 1)',
+  'rgba(245, 181, 46, 1)',
+  'rgba(237, 91, 53, 1)',
+  'rgba(0,0,0, 1)',
+];
+
 const Map = () => {
   const [followOptions, setFollowOptions] = useState({
     followUserMode: 'normal',
@@ -102,12 +109,12 @@ const Map = () => {
           <MapboxGL.LineLayer
             id="line-layer"
             sourceLayerID="polylines"
-            style={{lineColor: 'red'}}
+            style={lineStyle}
           />
           <MapboxGL.CircleLayer
             id="point-layer"
             sourceLayerID="polylines"
-            style={tyles}
+            style={pointStyle}
           />
         </MapboxGL.ShapeSource>
       </MapboxGL.MapView>
@@ -140,13 +147,18 @@ const Map = () => {
   );
 };
 
-const tyles = {
+const pointStyle = {
   visibility: 'visible',
-  circleRadius: 5,
-  circleColor: '#A9A9A9',
-  circleStrokeColor: '#A9A9A9',
-  circleStrokeWidth: 5,
+  circleRadius: 8,
+  circleColor: '#000000',
+  circleStrokeColor: '#ed5b35',
+  circleStrokeWidth: 3,
   circleOpacity: 1,
+};
+
+const lineStyle = {
+  lineColor: '#f5b52e',
+  lineWidth: 8,
 };
 
 const styles = StyleSheet.create({
