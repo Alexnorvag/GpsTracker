@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, StyleSheet, Alert, TouchableOpacity, Text} from 'react-native';
+import {View, StyleSheet, Alert} from 'react-native';
 
 import {useSelector} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
@@ -10,7 +10,7 @@ import BottomToolbar from './bottom-toolbar/toolbar';
 import MapControls from './controls/controls';
 import {
   IS_ANDROID,
-  createShapeSource,
+  // createShapeSource,
   createPolylineShapeSource,
 } from '../../utils';
 
@@ -23,7 +23,6 @@ const Map = () => {
     followUserMode: 'normal',
     followUserLocation: true,
   });
-  // const [zoomLevel, setZoomLevel] = useState(14);
   const coords = useSelector(selectAllCoords);
   const mapRef = useRef();
   const cameraRef = useRef();
@@ -49,40 +48,22 @@ const Map = () => {
 
   const setFollow = async () => {
     const zoom = await getCurrentZoomLevel();
+    cameraRef.current.zoomTo(zoom, 400);
+
     setFollowOptions({
       followUserMode: 'normal',
       followUserLocation: true,
     });
-    // const {longitude, latitude} = getCurrentLocation();
-    // console.log('getCurrentLocation: ', getCurrentLocation());
-    // cameraRef.current.setCamera({
-    //   centerCoordinate: [longitude, latitude],
-    //   zoomLevel: 14,
-    //   animationDuration: 400,
-    //   followUserMode: 'normal',
-    //   followUserLocation: true,
-    // });
+  };
+
+  const increaseZoomByValue = async (value) => {
+    const currentZoom = await getCurrentZoomLevel();
+    const zoom = currentZoom + value;
+
+    setFollowOptions({followUserMode: null, followUserLocation: false});
+
     cameraRef.current.zoomTo(zoom, 400);
   };
-
-  const increaseZoomByValue = async (value = 1) => {
-    const zoom = await getCurrentZoomLevel();
-    setFollowOptions({followUserMode: null, followUserLocation: false});
-    cameraRef.current.zoomTo(zoom + value, 400);
-    // cameraRef.current.setCamera({
-    //   // centerCoordinate: [longitude, latitude],
-    //   zoomLevel: 14,
-    //   animationDuration: 400,
-    //   followUserMode: 'normal',
-    //   followUserLocation: true,
-    // });
-  };
-
-  useEffect(() => {
-    console.log('MAP coords: ', coords);
-
-    console.log('qfqf ', createPolylineShapeSource(coords));
-  }, [coords]);
 
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(true);
@@ -95,32 +76,26 @@ const Map = () => {
         styleURL={'mapbox://styles/alexnorvag/ck9efq0oz2d0x1ioftrtazzyz'}
         style={styles.map}
         zoomEnabled={true}>
-        <MapboxGL.UserLocation
-          visible={true}
-          showsUserHeadingIndicator={true}
-          onUpdate={onUserLocationUpdate}
-        />
         <MapboxGL.Camera
           ref={cameraRef}
           followUserMode={followOptions.followUserMode}
           followUserLocation={followOptions.followUserLocation}
-          onUserTrackingModeChange={async (e) => {
+          onUserTrackingModeChange={(e) => {
             const {followUserMode, followUserLocation} = e.nativeEvent.payload;
-            console.log(followUserLocation, followUserMode);
-            // console.log(followOptions);
-            // setZoomLevel(zoom);
-            // cameraRef.current.zoomTo(zoom);
             if (!followUserMode) {
               setFollowOptions({
                 followUserMode,
                 followUserLocation,
               });
             }
-            // const zoom = await mapRef.current.getZoom();
-            // cameraRef.current.zoomTo(zoom);
           }}
         />
-        
+        <MapboxGL.UserLocation
+          visible={true}
+          showsUserHeadingIndicator={true}
+          onUpdate={onUserLocationUpdate}
+        />
+
         <MapboxGL.ShapeSource
           id="polylines"
           shape={createPolylineShapeSource(coords)}>
