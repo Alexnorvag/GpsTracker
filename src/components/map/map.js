@@ -103,20 +103,22 @@ const Map = () => {
           onUpdate={onUserLocationUpdate}
         />
 
-        <MapboxGL.ShapeSource
-          id="polylines"
-          shape={createPolylineShapeSource(coords)}>
-          <MapboxGL.LineLayer
-            id="line-layer"
-            sourceLayerID="polylines"
-            style={lineStyle}
-          />
-          <MapboxGL.CircleLayer
-            id="point-layer"
-            sourceLayerID="polylines"
-            style={pointStyle}
-          />
-        </MapboxGL.ShapeSource>
+        {coords.length !== 0 && (
+          <MapboxGL.ShapeSource
+            id="polylines"
+            shape={createPolylineShapeSource(coords)}>
+            <MapboxGL.LineLayer
+              id="line-layer"
+              sourceLayerID="polylines"
+              style={lineStyle}
+            />
+            <MapboxGL.CircleLayer
+              id="point-layer"
+              sourceLayerID="polylines"
+              style={pointStyle}
+            />
+          </MapboxGL.ShapeSource>
+        )}
       </MapboxGL.MapView>
 
       <BottomToolbar
