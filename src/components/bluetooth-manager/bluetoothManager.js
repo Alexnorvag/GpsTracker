@@ -1,12 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  StyleSheet,
-  TouchableHighlight,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, Modal, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {BleManager} from 'react-native-ble-plx';
 import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../utils';
@@ -14,6 +7,12 @@ import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../utils';
 const BluetoothManager = ({modalVisible, changeModalState}) => {
   const [info, setInfo] = useState('');
   const [values, setValues] = useState({});
+  const [devices, setDevices] = useState([]);
+
+  const isExist = (device) =>
+    devices.findIndex((_device) => _device.id === device.id) !== -1
+      ? true
+      : false;
 
   const manager = useRef({});
 
@@ -23,7 +22,12 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
   const scanAndConnect = () => {
     manager.current.startDeviceScan(null, null, (error, device) => {
       setInfo('Scanning...');
-      console.log(device.id);
+      if (!isExist(device)) {
+        console.log(device);
+        setDevices((d) => [...d, device]);
+      } else {
+        console.log('already exist');
+      }
 
       if (error) {
         setError(error.message);
@@ -103,6 +107,9 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Text>{info}</Text>
+            {devices.map((device, index) => (
+              <Text key={index}>{device.id}</Text>
+            ))}
           </View>
         </View>
         <View style={styles.closeButton}>
