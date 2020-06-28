@@ -2,10 +2,13 @@ import React from 'react';
 import {View} from 'react-native';
 import ToolbarControls from '../../../redux/features/coords/coordsControls';
 
-const Toolbar = ({styles, currentLocation}) => {
+const Toolbar = ({styles, currentLocation, changeModalState}) => {
   return (
     <View style={styles}>
-      <ToolbarControls currentLocation={currentLocation}/>
+      <ToolbarControls
+        currentLocation={currentLocation}
+        changeModalState={changeModalState}
+      />
     </View>
   );
 };

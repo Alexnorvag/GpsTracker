@@ -1,5 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, StyleSheet, Alert} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Alert,
+  Text,
+  Modal,
+  TouchableHighlight,
+} from 'react-native';
 
 import {useSelector} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
@@ -8,6 +15,9 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 
 import BottomToolbar from './bottom-toolbar/toolbar';
 import MapControls from './controls/controls';
+import BluetoothManager, {
+  BluetoothModal,
+} from '../bluetooth-manager/bluetoothManager';
 import {
   IS_ANDROID,
   // createShapeSource,
@@ -30,6 +40,7 @@ const Map = () => {
     followUserMode: 'normal',
     followUserLocation: true,
   });
+  const [modalVisible, setModalVisible] = useState(false);
   const coords = useSelector(selectAllCoords);
   const mapRef = useRef();
   const cameraRef = useRef();
@@ -71,6 +82,8 @@ const Map = () => {
 
     cameraRef.current.zoomTo(zoom, 400);
   };
+
+  const changeModalState = () => setModalVisible((v) => !v);
 
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(true);
@@ -121,9 +134,17 @@ const Map = () => {
         )}
       </MapboxGL.MapView>
 
+      {modalVisible && (
+        <BluetoothManager
+          modalVisible={modalVisible}
+          changeModalState={changeModalState}
+        />
+      )}
+
       <BottomToolbar
         styles={[styles.toolbarContainer]}
         currentLocation={getCurrentLocation}
+        changeModalState={changeModalState}
       />
 
       <MapControls
@@ -189,6 +210,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 10,
     borderRadius: 10,
+  },
+  centeredView: {
+    position: 'absolute',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
 

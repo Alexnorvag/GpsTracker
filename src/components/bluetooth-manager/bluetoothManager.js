@@ -1,9 +1,17 @@
-import React, {useState, useRef} from 'react';
-import {View, Text, Modal} from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  View,
+  Text,
+  Modal,
+  StyleSheet,
+  TouchableHighlight,
+  TouchableOpacity,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/AntDesign';
 import {BleManager} from 'react-native-ble-plx';
 import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../utils';
 
-const BluetoothManager = () => {
+const BluetoothManager = ({modalVisible, changeModalState}) => {
   const [info, setInfo] = useState('');
   const [values, setValues] = useState({});
 
@@ -15,7 +23,7 @@ const BluetoothManager = () => {
   const scanAndConnect = () => {
     manager.current.startDeviceScan(null, null, (error, device) => {
       setInfo('Scanning...');
-      console.log(device);
+      console.log(device.id);
 
       if (error) {
         setError(error.message);
@@ -75,6 +83,7 @@ const BluetoothManager = () => {
 
   useEffect(() => {
     manager.current = new BleManager();
+    console.log('manager: ', manager.current);
 
     if (!IS_ANDROID) {
       manager.onStateChange((state) => {
@@ -86,28 +95,44 @@ const BluetoothManager = () => {
   }, []);
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => {
-        Alert.alert('Modal has been closed.');
-      }}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.modalText}>Hello World!</Text>
-
-          <TouchableHighlight
-            style={{...styles.openButton, backgroundColor: '#2196F3'}}
-            onPress={() => {
-              setModalVisible(!modalVisible);
-            }}>
-            <Text style={styles.textStyle}>Hide Modal</Text>
-          </TouchableHighlight>
+    <View style={styles.centeredView}>
+      <Modal
+        animationType="slide"
+        visible={modalVisible}
+        onRequestClose={changeModalState}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text>{info}</Text>
+          </View>
         </View>
-      </View>
-    </Modal>
+        <View style={styles.closeButton}>
+          <TouchableOpacity onPress={changeModalState}>
+            <Icon name={'close'} size={24} color={'black'} />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  centeredView: {
+    position: 'absolute',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    alignItems: 'center',
+    elevation: 5,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+});
 
 export default BluetoothManager;
