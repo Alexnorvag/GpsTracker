@@ -17,7 +17,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
   const [values, setValues] = useState({});
   const [devices, setDevices] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
-  const devs = useRef([]);
+  const _devices = useRef([]);
 
   const manager = useRef({});
 
@@ -31,6 +31,16 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
   const setError = (message) => setInfo('ERROR: ' + message);
   const updateValue = (key, value) => setValues((v) => ({...v, [key]: value}));
 
+  const startScanning = () => {
+    if (!IS_ANDROID) {
+      manager.onStateChange((state) => {
+        if (state === 'PoweredOn') scanDevices();
+      });
+    } else {
+      scanDevices();
+    }
+  };
+
   const stopScanning = () => {
     manager.current.stopDeviceScan();
     setInfo('Stopped');
@@ -41,11 +51,11 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     manager.current.startDeviceScan(null, null, (error, device) => {
       setInfo('Scanning...');
       setIsScanning(true);
-      if (!isDeviceExist(devs.current, device)) {
-        devs.current = [...devs.current, device];
+      if (!isDeviceExist(_devices.current, device)) {
+        _devices.current = [..._devices.current, device];
       }
 
-      setDevices(devs.current);
+      setDevices(_devices.current);
 
       if (error) {
         setError(error.message);
@@ -59,34 +69,32 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
   const connectToDevice = (selectedDevice) => {
     const deviceName =
       selectedDevice.localname || selectedDevice.name || selectedDevice.id;
-    console.log('selected device: ', deviceName);
-    stopScanning()
-    setInfo(`Connecting to ${deviceName}`);
-  };
 
-  // if (device.name === 'TI BLE Sensor Tag' || device.name === 'SensorTag') {
-  //   setInfo('Connecting to TI Sensor');
-  //   manager.current.stopDeviceScan();
-  //   device
-  //     .connect()
-  //     .then((device) => {
-  //       setInfo('Discovering services and characteristics');
-  //       return device.discoverAllServicesAndCharacteristics();
-  //     })
-  //     .then((device) => {
-  //       setInfo('Setting notifications');
-  //       return setupNotifications(device);
-  //     })
-  //     .then(
-  //       () => {
-  //         setInfo('Listening...');
-  //       },
-  //       (error) => {
-  //         setError(error.message);
-  //       },
-  //     );
-  // }
-  // });
+    // console.log('selected device: ', selectedDevice);
+
+    stopScanning();
+    setInfo(`Connecting to ${deviceName}`);
+
+    selectedDevice
+      .connect()
+      .then((device) => {
+        setInfo('Discovering services and characteristics');
+        return device.discoverAllServicesAndCharacteristics();
+      })
+      .then((device) => {
+        // console.log('connect to device: ', device);
+        setInfo('Setting notifications');
+        return setupNotifications(device);
+      })
+      .then(
+        () => {
+          setInfo('Listening...');
+        },
+        (error) => {
+          setError(error.message);
+        },
+      );
+  };
 
   const setupNotifications = async (device) => {
     for (const id in BLUETOOTH_CONFIG.sensors) {
@@ -99,6 +107,8 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
         characteristicW,
         'AQ==' /* 0x01 in hex */,
       );
+
+      console.log('characteristic: ', characteristic);
 
       device.monitorCharacteristicForService(
         service,
@@ -118,13 +128,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     manager.current = new BleManager();
     console.log('manager: ', manager.current);
 
-    if (!IS_ANDROID) {
-      manager.onStateChange((state) => {
-        if (state === 'PoweredOn') scanDevices();
-      });
-    } else {
-      scanDevices();
-    }
+    startScanning();
   }, []);
 
   return (
@@ -133,6 +137,17 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
       visible={modalVisible}
       onRequestClose={changeModalState}>
       <View style={styles.infoWrapper}>
+        {!isScanning && (
+          <View style={styles.reloadButton}>
+            <TouchableOpacity
+              onPress={() => {
+                setDevices([]);
+                startScanning();
+              }}>
+              <Icon name={'reload1'} size={24} color={'black'} />
+            </TouchableOpacity>
+          </View>
+        )}
         <View style={styles.infoTextWrapper}>
           <Text style={styles.infoText}>{info}</Text>
           {isScanning && (
@@ -147,6 +162,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
           </TouchableOpacity>
         </View>
       </View>
+      <Text>{values.value}</Text>
       <ScrollView style={styles.bleScrollContainer}>
         {devices.map((device, index) => (
           <TouchableOpacity
@@ -188,6 +204,11 @@ const styles = StyleSheet.create({
   },
   infoSpinner: {
     paddingLeft: 5,
+  },
+  reloadButton: {
+    position: 'absolute',
+    left: 0,
+    paddingHorizontal: 10,
   },
   closeButton: {
     position: 'absolute',
