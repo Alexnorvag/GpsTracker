@@ -41,3 +41,25 @@ export const createPolylineShapeSource = (coordinates) => ({
     },
   ],
 });
+
+export const BLUETOOTH_CONFIG = {
+  prefixUUID: 'f000aa',
+  suffixUUID: '-0451-4000-b000-000000000000',
+  sensors: {
+    0: 'Temperature',
+    1: 'Accelerometer',
+    2: 'Humidity',
+    3: 'Magnetometer',
+    4: 'Barometer',
+    5: 'Gyroscope',
+  },
+  serviceUUID: function (num) {
+    return this.prefixUUID + num + '0' + this.suffixUUID;
+  },
+  notifyUUID: function (num) {
+    return this.prefixUUID + num + '1' + this.suffixUUID;
+  },
+  writeUUID: function (num) {
+    return this.prefixUUID + num + '2' + this.suffixUUID;
+  },
+};
