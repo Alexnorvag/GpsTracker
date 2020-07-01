@@ -18,8 +18,8 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
   const [devices, setDevices] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
   const _devices = useRef([]);
-
   const manager = useRef({});
+  const stopScanningTimer = useRef(null);
 
   const isDeviceExist = (devices, device) => {
     if (devices.length < 1) return false;
@@ -51,7 +51,8 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     manager.current.startDeviceScan(null, null, (error, device) => {
       setInfo('Scanning...');
       setIsScanning(true);
-      if (!isDeviceExist(_devices.current, device)) {
+
+      if (device && !isDeviceExist(_devices.current, device)) {
         _devices.current = [..._devices.current, device];
       }
 
@@ -63,14 +64,12 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
       }
     });
 
-    setTimeout(stopScanning, 30000);
+    stopScanningTimer.current = setTimeout(stopScanning, 5000);
   };
 
   const connectToDevice = (selectedDevice) => {
     const deviceName =
       selectedDevice.localname || selectedDevice.name || selectedDevice.id;
-
-    // console.log('selected device: ', selectedDevice);
 
     stopScanning();
     setInfo(`Connecting to ${deviceName}`);
@@ -129,6 +128,11 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     console.log('manager: ', manager.current);
 
     startScanning();
+
+    return () => {
+      clearInterval(stopScanningTimer.current);
+      stopScanning();
+    };
   }, []);
 
   return (
@@ -164,14 +168,15 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
       </View>
       <Text>{values.value}</Text>
       <ScrollView style={styles.bleScrollContainer}>
-        {devices.map((device, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.bleItemWrapper}
-            onPress={() => connectToDevice(device)}>
-            <Text>{device.localname || device.name || device.id}</Text>
-          </TouchableOpacity>
-        ))}
+        {devices.length > 0 &&
+          devices.map((device, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.bleItemWrapper}
+              onPress={() => connectToDevice(device)}>
+              <Text>{device.localname || device.name || device.id}</Text>
+            </TouchableOpacity>
+          ))}
       </ScrollView>
     </Modal>
   );

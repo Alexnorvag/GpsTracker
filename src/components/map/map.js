@@ -1,12 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  View,
-  StyleSheet,
-  Alert,
-  Text,
-  Modal,
-  TouchableHighlight,
-} from 'react-native';
+import {View, StyleSheet, Alert} from 'react-native';
 
 import {useSelector} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
@@ -15,9 +8,7 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 
 import BottomToolbar from './bottom-toolbar/toolbar';
 import MapControls from './controls/controls';
-import BluetoothManager, {
-  BluetoothModal,
-} from '../bluetooth-manager/bluetoothManager';
+import BluetoothManager from '../bluetooth-manager/bluetoothManager';
 import {
   IS_ANDROID,
   // createShapeSource,
@@ -125,11 +116,11 @@ const Map = () => {
               sourceLayerID="polylines"
               style={lineStyle}
             />
-            <MapboxGL.CircleLayer
+            {/* <MapboxGL.CircleLayer
               id="point-layer"
               sourceLayerID="polylines"
               style={pointStyle}
-            />
+            /> */}
           </MapboxGL.ShapeSource>
         )}
       </MapboxGL.MapView>
@@ -170,18 +161,18 @@ const Map = () => {
   );
 };
 
+const lineStyle = {
+  lineColor: '#f5b52e',
+  lineWidth: 6,
+};
+
 const pointStyle = {
   visibility: 'visible',
-  circleRadius: 8,
+  circleRadius: 6,
   circleColor: '#000000',
   circleStrokeColor: '#ed5b35',
   circleStrokeWidth: 3,
   circleOpacity: 1,
-};
-
-const lineStyle = {
-  lineColor: '#f5b52e',
-  lineWidth: 8,
 };
 
 const styles = StyleSheet.create({

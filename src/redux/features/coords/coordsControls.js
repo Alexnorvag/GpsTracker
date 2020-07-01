@@ -1,75 +1,50 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {StyleSheet} from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 
-import {useDispatch} from 'react-redux';
-import {addCoord} from './coordsSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {addCoord, addPointCoord, selectAllCoords} from './coordsSlice';
 
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
-// import {BleManager} from 'react-native-ble-plx';
-import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../../utils';
+import {IS_ANDROID} from '../../../utils';
 
 const CoordsControls = ({currentLocation, changeModalState}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
-  const [info, setInfo] = useState('');
-  const [values, setValues] = useState({});
+  const points = useSelector(selectAllCoords)
 
   const dispatch = useDispatch();
 
-  const manager = useRef({});
-  const _id = useRef(0);
+  const watchID = useRef(0);
+  const coordId = useRef(0);
 
-  const getId = () => _id.current;
-  const incrementId = () => (_id.current += 1);
-  const setError = (message) => setInfo('ERROR: ' + message);
-  const updateValue = (key, value) => setValues((v) => ({...v, [key]: value}));
+  const getCoordId = () => coordId.current++;
 
-  // const scanAndConnect = () => {
-  //   this.manager.startDeviceScan(null, null, (error, device) => {
-  //     this.info('Scanning...');
-  //     console.log(device);
+  console.log('points: ', points)
 
-  //     if (error) {
-  //       this.error(error.message);
-  //       return;
-  //     }
+  useEffect(() => {
+    watchID.current = Geolocation.watchPosition(
+      (position) => {
+        dispatch(
+          addCoord({
+            id: getCoordId(),
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          }),
+        );
+      },
+      (error) => console.log('error: ', error.message),
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 1000,
+        distanceFilter: 40,
+      },
+    );
 
-  //     if (device.name === 'TI BLE Sensor Tag' || device.name === 'SensorTag') {
-  //       this.info('Connecting to TI Sensor');
-  //       this.manager.stopDeviceScan();
-  //       device
-  //         .connect()
-  //         .then((device) => {
-  //           this.info('Discovering services and characteristics');
-  //           return device.discoverAllServicesAndCharacteristics();
-  //         })
-  //         .then((device) => {
-  //           this.info('Setting notifications');
-  //           return this.setupNotifications(device);
-  //         })
-  //         .then(
-  //           () => {
-  //             this.info('Listening...');
-  //           },
-  //           (error) => {
-  //             this.error(error.message);
-  //           },
-  //         );
-  //     }
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   manager.current = new BleManager();
-
-  //   if (!IS_ANDROID) {
-  //     manager.onStateChange((state) => {
-  //       if (state === 'PoweredOn') scanAndConnect();
-  //     });
-  //   } else {
-  //     scanAndConnect();
-  //   }
-  // }, []);
+    return () =>
+      watchID.current !== null && Geolocation.clearWatch(watchID.current);
+  }, []);
 
   return (
     <BottomToolbar wrapperStyle={stylese.wrapper}>
@@ -93,22 +68,22 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         }
         onPress={() => {
           setIsBuildingRoute((p) => !p);
-
-          // if (isBuildingRoute) {
-          //   stopHandler();
-          // } else {
-          //   startHandler();
-          // }
           const {longitude: lng, latitude: lat} = currentLocation();
 
           dispatch(
-            addCoord({
-              id: getId(),
+            addPointCoord({
+              id: getCoordId(),
               lat,
               lng,
             }),
           );
-          incrementId();
+          // dispatch(
+          //   addCoord({
+          //     id: getCoordId(),
+          //     lat,
+          //     lng,
+          //   }),
+          // );
         }}
       />
       <BottomToolbar.Action
