@@ -14,22 +14,10 @@ export const slice = createSlice({
   reducers: {
     addCoord: coordsAdapter.addOne,
     removeCoord: coordsAdapter.removeOne,
-    addPointCoord(state, action) {
-      console.log('Add point state: ', state.points);
-      console.log('Add point action: ', action);
-
+    addPointCoord: (state, action) => {
       state.points = [...state.points, action.payload];
     },
   },
-  // extraReducers: (builder) => {
-  // builder.addCase(fetchUsers.pending, (state, action) => {
-  //   state.loading = true;
-  // });
-  // builder.addCase(fetchUsers.fulfilled, (state, action) => {
-  // usersAdapter.upsertMany(state, action.payload);
-  // state.loading = false;
-  // });
-  // },
 });
 
 const reducer = slice.reducer;

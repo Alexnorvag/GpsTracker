@@ -13,6 +13,7 @@ import {
   IS_ANDROID,
   // createShapeSource,
   createPolylineShapeSource,
+  createPointsShapeSource,
 } from '../../utils';
 
 MapboxGL.setAccessToken(
@@ -33,6 +34,7 @@ const Map = () => {
   });
   const [modalVisible, setModalVisible] = useState(false);
   const coords = useSelector(selectAllCoords);
+  const pointsCoords = useSelector((state) => state.coords.points);
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
@@ -109,18 +111,24 @@ const Map = () => {
 
         {coords.length !== 0 && (
           <MapboxGL.ShapeSource
-            id="polylines"
+            id="polyLines"
             shape={createPolylineShapeSource(coords)}>
             <MapboxGL.LineLayer
               id="line-layer"
-              sourceLayerID="polylines"
+              sourceLayerID="polyLines"
               style={lineStyle}
             />
-            {/* <MapboxGL.CircleLayer
+          </MapboxGL.ShapeSource>
+        )}
+        {pointsCoords.length !== 0 && (
+          <MapboxGL.ShapeSource
+            id="polyPoints"
+            shape={createPointsShapeSource(pointsCoords)}>
+            <MapboxGL.CircleLayer
               id="point-layer"
-              sourceLayerID="polylines"
+              sourceLayerID="polyPoints"
               style={pointStyle}
-            /> */}
+            />
           </MapboxGL.ShapeSource>
         )}
       </MapboxGL.MapView>

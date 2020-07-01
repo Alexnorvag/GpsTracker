@@ -2,8 +2,8 @@ import React, {useState, useRef, useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
-import {useDispatch, useSelector} from 'react-redux';
-import {addCoord, addPointCoord, selectAllCoords} from './coordsSlice';
+import {useDispatch} from 'react-redux';
+import {addCoord, addPointCoord} from './coordsSlice';
 
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -11,7 +11,6 @@ import {IS_ANDROID} from '../../../utils';
 
 const CoordsControls = ({currentLocation, changeModalState}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
-  const points = useSelector(selectAllCoords)
 
   const dispatch = useDispatch();
 
@@ -19,8 +18,6 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
   const coordId = useRef(0);
 
   const getCoordId = () => coordId.current++;
-
-  console.log('points: ', points)
 
   useEffect(() => {
     watchID.current = Geolocation.watchPosition(
@@ -72,18 +69,10 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
 
           dispatch(
             addPointCoord({
-              id: getCoordId(),
               lat,
               lng,
             }),
           );
-          // dispatch(
-          //   addCoord({
-          //     id: getCoordId(),
-          //     lat,
-          //     lng,
-          //   }),
-          // );
         }}
       />
       <BottomToolbar.Action
