@@ -1,12 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  View,
-  StyleSheet,
-  Alert,
-  Text,
-  Modal,
-  TouchableHighlight,
-} from 'react-native';
+import {View, StyleSheet, Alert} from 'react-native';
 
 import {useSelector} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
@@ -15,13 +8,12 @@ import MapboxGL from '@react-native-mapbox-gl/maps';
 
 import BottomToolbar from './bottom-toolbar/toolbar';
 import MapControls from './controls/controls';
-import BluetoothManager, {
-  BluetoothModal,
-} from '../bluetooth-manager/bluetoothManager';
+import BluetoothManager from '../bluetooth-manager/bluetoothManager';
 import {
   IS_ANDROID,
   // createShapeSource,
   createPolylineShapeSource,
+  createPointsShapeSource,
 } from '../../utils';
 
 MapboxGL.setAccessToken(
@@ -42,6 +34,7 @@ const Map = () => {
   });
   const [modalVisible, setModalVisible] = useState(false);
   const coords = useSelector(selectAllCoords);
+  const pointsCoords = useSelector((state) => state.coords.points);
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
@@ -118,16 +111,22 @@ const Map = () => {
 
         {coords.length !== 0 && (
           <MapboxGL.ShapeSource
-            id="polylines"
+            id="polyLines"
             shape={createPolylineShapeSource(coords)}>
             <MapboxGL.LineLayer
               id="line-layer"
-              sourceLayerID="polylines"
+              sourceLayerID="polyLines"
               style={lineStyle}
             />
+          </MapboxGL.ShapeSource>
+        )}
+        {pointsCoords.length !== 0 && (
+          <MapboxGL.ShapeSource
+            id="polyPoints"
+            shape={createPointsShapeSource(pointsCoords)}>
             <MapboxGL.CircleLayer
               id="point-layer"
-              sourceLayerID="polylines"
+              sourceLayerID="polyPoints"
               style={pointStyle}
             />
           </MapboxGL.ShapeSource>
@@ -170,18 +169,18 @@ const Map = () => {
   );
 };
 
+const lineStyle = {
+  lineColor: '#f5b52e',
+  lineWidth: 6,
+};
+
 const pointStyle = {
   visibility: 'visible',
-  circleRadius: 8,
+  circleRadius: 6,
   circleColor: '#000000',
   circleStrokeColor: '#ed5b35',
   circleStrokeWidth: 3,
   circleOpacity: 1,
-};
-
-const lineStyle = {
-  lineColor: '#f5b52e',
-  lineWidth: 8,
 };
 
 const styles = StyleSheet.create({

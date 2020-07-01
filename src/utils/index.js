@@ -25,6 +25,20 @@ export const createShapeSource = (coordinates) => ({
   })),
 });
 
+export const createPointsShapeSource = (coordinates) => ({
+  type: 'FeatureCollection',
+  features: coordinates.map((coordinate) => ({
+    type: 'Feature',
+    geometry: {
+      type: 'MultiPoint',
+      coordinates: coordinates.map((coordinate) => [
+        coordinate.lng,
+        coordinate.lat,
+      ]),
+    },
+  })),
+});
+
 export const createPolylineShapeSource = (coordinates) => ({
   type: 'FeatureCollection',
   features: [
