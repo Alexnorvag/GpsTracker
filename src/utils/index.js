@@ -14,29 +14,20 @@ export function onSortOptions(a, b) {
   return 0;
 }
 
-export const createShapeSource = (coordinates) => ({
-  type: 'FeatureCollection',
-  features: coordinates.map((coordinate) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: [coordinate.lng, coordinate.lat],
-    },
-  })),
-});
-
 export const createPointsShapeSource = (coordinates) => ({
   type: 'FeatureCollection',
-  features: coordinates.map((coordinate) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'MultiPoint',
-      coordinates: coordinates.map((coordinate) => [
-        coordinate.lng,
-        coordinate.lat,
-      ]),
+  features: [
+    {
+      type: 'Feature',
+      geometry: {
+        type: 'MultiPoint',
+        coordinates: coordinates.map((coordinate) => [
+          coordinate.lng,
+          coordinate.lat,
+        ]),
+      },
     },
-  })),
+  ],
 });
 
 export const createPolylineShapeSource = (coordinates) => ({

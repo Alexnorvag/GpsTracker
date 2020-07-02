@@ -35,7 +35,7 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         enableHighAccuracy: true,
         timeout: 20000,
         maximumAge: 1000,
-        distanceFilter: 40,
+        distanceFilter: 30,
       },
     );
 

@@ -11,7 +11,6 @@ import MapControls from './controls/controls';
 import BluetoothManager from '../bluetooth-manager/bluetoothManager';
 import {
   IS_ANDROID,
-  // createShapeSource,
   createPolylineShapeSource,
   createPointsShapeSource,
 } from '../../utils';
@@ -19,13 +18,6 @@ import {
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
-
-export const CONCENTRIC_COLORS = [
-  'rgba(129, 197, 64, 1)',
-  'rgba(245, 181, 46, 1)',
-  'rgba(237, 91, 53, 1)',
-  'rgba(0,0,0, 1)',
-];
 
 const Map = () => {
   const [followOptions, setFollowOptions] = useState({
@@ -206,9 +198,9 @@ const styles = StyleSheet.create({
     right: 0,
     flex: 1,
     backgroundColor: '#ffffff',
-    paddingHorizontal: 5,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingHorizontal: 4,
+    // paddingVertical: 10,
+    borderRadius: 10
   },
   centeredView: {
     position: 'absolute',
