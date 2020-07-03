@@ -2,9 +2,12 @@ import React, {useState, useRef, useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
-import {useDispatch} from 'react-redux';
-import {addCoord, addPointCoord} from './coordsSlice';
-import {fetchPolylines, createPolyline} from '../../features/polylines/polylinesSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {addCoord, addPointCoord, selectAllCoords, selectCoords} from './coordsSlice';
+import {
+  fetchPolylines,
+  createPolyline,
+} from '../../features/polylines/polylinesSlice';
 
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -12,6 +15,7 @@ import {IS_ANDROID} from '../../../utils';
 
 const CoordsControls = ({currentLocation, changeModalState}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
+  const coords = useSelector(selectAllCoords);
 
   const dispatch = useDispatch();
 
@@ -19,6 +23,8 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
   const coordId = useRef(0);
 
   const getCoordId = () => coordId.current++;
+
+  console.log('coords: ', coords);
 
   useEffect(() => {
     watchID.current = Geolocation.watchPosition(
@@ -50,9 +56,8 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         title="Build"
         iconName="check"
         IconElement={<Icon name="check" size={30} color="black" />}
-        onPress={(index, propsOfThisAction) => {
-          // console.warn(index + ' title: ' + propsOfThisAction.title)
-          dispatch(fetchPolylines());
+        onPress={() => {
+          dispatch(fetchPolylines(coords));
         }}
       />
       <BottomToolbar.Action

@@ -3,15 +3,13 @@ import {
   createAsyncThunk,
   createEntityAdapter,
 } from '@reduxjs/toolkit';
-import {coordsAdapter} from '../coords/coordsSlice';
 import {polylineAPI} from './polylineAPI';
 
 export const fetchPolylines = createAsyncThunk(
   'polylines/fetchAll',
-  async () => {
-    const response = await polylineAPI.fetchAll();
-    console.log('[FETCH POLYLINES] -> res: ', response);
-    return response;
+  async (coords) => {
+    console.log('coords: ', coords);
+    return await polylineAPI.fetchAll();
   },
 );
 export const createPolyline = createAsyncThunk(
@@ -25,7 +23,7 @@ export const createPolyline = createAsyncThunk(
 
 export const polylinesAdapter = createEntityAdapter();
 
-const initialState = polylinesAdapter.getInitialState({});
+const initialState = polylinesAdapter.getInitialState({loading: false});
 
 export const slice = createSlice({
   name: 'polylines',
@@ -34,6 +32,11 @@ export const slice = createSlice({
     addPolyline: polylinesAdapter.addOne,
     removePolyline: polylinesAdapter.removeOne,
     updatePolyline: polylinesAdapter.updateOne,
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchPolylines.pending, (state, action) => {
+      // console.log('state: ', action);
+    });
   },
 });
 
