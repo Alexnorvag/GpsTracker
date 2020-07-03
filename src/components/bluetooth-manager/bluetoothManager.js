@@ -10,7 +10,18 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {BleManager} from 'react-native-ble-plx';
+import {Buffer} from 'buffer';
 import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../utils';
+
+const VEHICLE_MAC = 'DA:BB:1D:A0:FA:FD';
+const STOP = Buffer.from('0').toString('base64');
+const MOVE_UP = Buffer.from('1').toString('base64');
+const MOVE_DOWN = Buffer.from('2').toString('base64');
+const MOVE_LEFT = Buffer.from('3').toString('base64');
+const MOVE_RIGHT = Buffer.from('4').toString('base64');
+
+const CTLR_SVC = 'B33EBCE4-26F5-8752-FA0A-C0EE68663DA1';
+const CTLR_XTIC = '0000180a-0000-1000-8000-00805f9b34fb';
 
 const BluetoothManager = ({modalVisible, changeModalState}) => {
   const [info, setInfo] = useState('');
@@ -33,7 +44,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
 
   const startScanning = () => {
     if (!IS_ANDROID) {
-      manager.onStateChange((state) => {
+      manager.current.onStateChange((state) => {
         if (state === 'PoweredOn') scanDevices();
       });
     } else {
@@ -51,6 +62,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     manager.current.startDeviceScan(null, null, (error, device) => {
       setInfo('Scanning...');
       setIsScanning(true);
+      console.log('serviceUUIDs: ', device)
 
       if (device && !isDeviceExist(_devices.current, device)) {
         _devices.current = [..._devices.current, device];
@@ -64,35 +76,63 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
       }
     });
 
-    stopScanningTimer.current = setTimeout(stopScanning, 5000);
+    stopScanningTimer.current = setTimeout(stopScanning, 20000);
   };
 
   const connectToDevice = (selectedDevice) => {
     const deviceName =
       selectedDevice.localname || selectedDevice.name || selectedDevice.id;
-
-    stopScanning();
+    // console.log('($*)!"(*)($!)"($: ', selectedDevice.serviceUUIDs)
+    // stopScanning();
     setInfo(`Connecting to ${deviceName}`);
 
-    selectedDevice
-      .connect()
-      .then((device) => {
-        setInfo('Discovering services and characteristics');
-        return device.discoverAllServicesAndCharacteristics();
-      })
-      .then((device) => {
-        // console.log('connect to device: ', device);
-        setInfo('Setting notifications');
-        return setupNotifications(device);
-      })
-      .then(
-        () => {
-          setInfo('Listening...');
-        },
-        (error) => {
-          setError(error.message);
-        },
-      );
+    console.log('selected device: ', selectedDevice.id)
+
+    manager.current.connectToDevice(selectedDevice.id);
+
+    // selectedDevice
+    //   .connect()
+    //   .then(async (device) => {
+    //     setInfo('Discovering services and characteristics');
+    //     // const res = await device.discoverAllServicesAndCharacteristics()
+    //     // const services = await res.services(selectedDevice.id)
+    //     // console.log('*^&£&*&^*&^*&^*&&^: ', services);
+    //     return device.discoverAllServicesAndCharacteristics();
+    //   })
+    //   .then((device) => {
+    //     setInfo('Setting notifications');
+    //     // console.log('*^&£&*&^*&^*&^*&: ', device._manager.id);
+
+    //     return manager.current.writeCharacteristicWithResponseForDevice(
+    //       selectedDevice.id,
+    //       CTLR_XTIC,
+    //       'Cg==',
+    //       );
+
+    //     // for (const id in BLUETOOTH_CONFIG.sensors) {
+    //     //   const service = BLUETOOTH_CONFIG.serviceUUID(id);
+    //     //   const characteristicW = BLUETOOTH_CONFIG.writeUUID(id);
+    //     //   const characteristicN = BLUETOOTH_CONFIG.notifyUUID(id);
+
+    //     //   device
+    //     //     .writeCharacteristicWithResponseForService(
+    //     //       CTLR_SVC, CTLR_XTIC, 'Cg==',
+    //     //     )
+    //     //     .then((characteristic) => {
+    //     //       this.info(characteristic.value);
+    //     //       return;
+    //     //     });
+    //     //   // return setupNotifications(device);
+    //     // }
+    //   })
+    //   .then(
+    //     () => {
+    //       setInfo('Listening...');
+    //     },
+    //     (error) => {
+    //       setError(error.message);
+    //     },
+    //   );
   };
 
   const setupNotifications = async (device) => {
@@ -173,7 +213,10 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
             <TouchableOpacity
               key={index}
               style={styles.bleItemWrapper}
-              onPress={() => connectToDevice(device)}>
+              onPress={() => {
+                stopScanning();
+                connectToDevice(device);
+              }}>
               <Text>{device.localname || device.name || device.id}</Text>
             </TouchableOpacity>
           ))}
@@ -186,7 +229,8 @@ const styles = StyleSheet.create({
   infoWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    top: IS_ANDROID ? 0 : 40,
+    paddingVertical: 100,
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: {
@@ -195,8 +239,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
-
     elevation: 3,
+    zIndex: 10000,
   },
   infoTextWrapper: {
     flex: 1,
@@ -214,6 +258,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     paddingHorizontal: 10,
+    backgroundColor: 'red',
   },
   closeButton: {
     position: 'absolute',
