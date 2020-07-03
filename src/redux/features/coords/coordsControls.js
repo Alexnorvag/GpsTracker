@@ -4,6 +4,7 @@ import Geolocation from '@react-native-community/geolocation';
 
 import {useDispatch} from 'react-redux';
 import {addCoord, addPointCoord} from './coordsSlice';
+import {fetchPolylines, createPolyline} from '../../features/polylines/polylinesSlice';
 
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -49,9 +50,10 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         title="Build"
         iconName="check"
         IconElement={<Icon name="check" size={30} color="black" />}
-        onPress={(index, propsOfThisAction) =>
-          console.warn(index + ' title: ' + propsOfThisAction.title)
-        }
+        onPress={(index, propsOfThisAction) => {
+          // console.warn(index + ' title: ' + propsOfThisAction.title)
+          dispatch(fetchPolylines());
+        }}
       />
       <BottomToolbar.Action
         title={isBuildingRoute ? 'Pause' : 'Start'}
