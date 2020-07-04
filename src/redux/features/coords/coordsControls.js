@@ -2,10 +2,10 @@ import React, {useState, useRef, useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
-import {useDispatch, useSelector} from 'react-redux';
-import {addCoord, addPointCoord, selectAllCoords, selectCoords} from './coordsSlice';
+import {useDispatch} from 'react-redux';
+import {addCoord, addPointCoord} from './coordsSlice';
 import {
-  fetchPolylines,
+  // fetchPolylines,
   createPolyline,
 } from '../../features/polylines/polylinesSlice';
 
@@ -15,27 +15,25 @@ import {IS_ANDROID} from '../../../utils';
 
 const CoordsControls = ({currentLocation, changeModalState}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
-  const coords = useSelector(selectAllCoords);
 
   const dispatch = useDispatch();
 
   const watchID = useRef(0);
   const coordId = useRef(0);
+  const coords = useRef([]);
 
   const getCoordId = () => coordId.current++;
-
-  console.log('coords: ', coords);
 
   useEffect(() => {
     watchID.current = Geolocation.watchPosition(
       (position) => {
-        dispatch(
-          addCoord({
-            id: getCoordId(),
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          }),
-        );
+        const coord = {
+          id: getCoordId(),
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        coords.current.push(coord);
+        dispatch(addCoord(coord));
       },
       (error) => console.log('error: ', error.message),
       {
@@ -57,7 +55,7 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         iconName="check"
         IconElement={<Icon name="check" size={30} color="black" />}
         onPress={() => {
-          dispatch(fetchPolylines(coords));
+          dispatch(createPolyline(coords.current));
         }}
       />
       <BottomToolbar.Action

@@ -7,15 +7,16 @@ import {polylineAPI} from './polylineAPI';
 
 export const fetchPolylines = createAsyncThunk(
   'polylines/fetchAll',
-  async (coords) => {
-    console.log('coords: ', coords);
-    return await polylineAPI.fetchAll();
+  async () => {
+    const res = await polylineAPI.fetchAll();
+    console.log('fetch: ', res);
+    return res;
   },
 );
 export const createPolyline = createAsyncThunk(
   'polylines/createOne',
-  async () => {
-    const response = await polylineAPI.createOne();
+  async (polylineCoords) => {
+    const response = await polylineAPI.createOne(polylineCoords);
     console.log('[FETCH POLYLINES] -> res: ', response);
     return response;
   },

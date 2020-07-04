@@ -10,15 +10,9 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {BleManager} from 'react-native-ble-plx';
-import {Buffer} from 'buffer';
 import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../utils';
 
 const VEHICLE_MAC = 'DA:BB:1D:A0:FA:FD';
-const STOP = Buffer.from('0').toString('base64');
-const MOVE_UP = Buffer.from('1').toString('base64');
-const MOVE_DOWN = Buffer.from('2').toString('base64');
-const MOVE_LEFT = Buffer.from('3').toString('base64');
-const MOVE_RIGHT = Buffer.from('4').toString('base64');
 
 const CTLR_SVC = 'B33EBCE4-26F5-8752-FA0A-C0EE68663DA1';
 const CTLR_XTIC = '0000180a-0000-1000-8000-00805f9b34fb';

@@ -1,8 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {View, StyleSheet, Alert} from 'react-native';
 
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
+import {fetchPolylines} from '../../redux/features/polylines/polylinesSlice';
 
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
@@ -30,6 +31,13 @@ const Map = () => {
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
+
+  const [dbCoords, setDbCoords] = useState([]);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setDbCoords(dispatch(fetchPolylines()));
+  }, []);
 
   const onUserLocationUpdate = (location) => {
     if (location) {
@@ -200,7 +208,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     paddingHorizontal: 4,
     // paddingVertical: 10,
-    borderRadius: 10
+    borderRadius: 10,
   },
   centeredView: {
     position: 'absolute',

@@ -8,9 +8,9 @@ export const polylineAPI = {
       console.log(`😲 polylines finding failed: ${e}`);
     }
   },
-  createOne: async () => {
+  createOne: async (newDoc) => {
     try {
-      return await dbPolyline.insertAsync({a: '4'});
+      return await dbPolyline.insertAsync(newDoc);
     } catch (error) {
       console.log(`😲 polylines inserting failed: ${e}`);
     }
