@@ -15,4 +15,11 @@ export const polylineAPI = {
       console.log(`😲 polylines inserting failed: ${e}`);
     }
   },
+  removeAll: async () => {
+    try {
+      return await dbPolyline.removeAsync({}, {multi: true});
+    } catch (error) {
+      console.log(`😲 polylines deleting failed: ${e}`);
+    }
+  },
 };

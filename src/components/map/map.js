@@ -3,7 +3,11 @@ import {View, StyleSheet, Alert} from 'react-native';
 
 import {useSelector, useDispatch} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
-import {fetchPolylines} from '../../redux/features/polylines/polylinesSlice';
+import {
+  fetchPolylines,
+  deletePolylines,
+  selectAllPolylines,
+} from '../../redux/features/polylines/polylinesSlice';
 
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
@@ -27,17 +31,21 @@ const Map = () => {
   });
   const [modalVisible, setModalVisible] = useState(false);
   const coords = useSelector(selectAllCoords);
+  const polylines = useSelector(selectAllPolylines);
   const pointsCoords = useSelector((state) => state.coords.points);
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
 
-  const [dbCoords, setDbCoords] = useState([]);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setDbCoords(dispatch(fetchPolylines()));
+    dispatch(fetchPolylines());
   }, []);
+
+  useEffect(() => {
+    console.log('polylines: ', polylines);
+  }, [polylines]);
 
   const onUserLocationUpdate = (location) => {
     if (location) {

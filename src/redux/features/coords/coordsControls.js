@@ -4,10 +4,7 @@ import Geolocation from '@react-native-community/geolocation';
 
 import {useDispatch} from 'react-redux';
 import {addCoord, addPointCoord} from './coordsSlice';
-import {
-  // fetchPolylines,
-  createPolyline,
-} from '../../features/polylines/polylinesSlice';
+import {createPolyline} from '../../features/polylines/polylinesSlice';
 
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -20,8 +17,10 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
 
   const watchID = useRef(0);
   const coordId = useRef(0);
-  const coords = useRef([]);
+  const polylineId = useRef(0);
+  const polyline = useRef({name: 'Untitled', lines: [], points: []});
 
+  const getPolylineId = () => polylineId.current++;
   const getCoordId = () => coordId.current++;
 
   useEffect(() => {
@@ -32,7 +31,9 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
-        coords.current.push(coord);
+
+        polyline.current.lines.push(coord);
+
         dispatch(addCoord(coord));
       },
       (error) => console.log('error: ', error.message),
@@ -55,7 +56,7 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         iconName="check"
         IconElement={<Icon name="check" size={30} color="black" />}
         onPress={() => {
-          dispatch(createPolyline(coords.current));
+          dispatch(createPolyline({id: getPolylineId(), ...polyline.current}));
         }}
       />
       <BottomToolbar.Action
@@ -72,12 +73,13 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
           setIsBuildingRoute((p) => !p);
           const {longitude: lng, latitude: lat} = currentLocation();
 
-          dispatch(
-            addPointCoord({
-              lat,
-              lng,
-            }),
-          );
+          const point = {
+            lat,
+            lng,
+          };
+
+          polyline.current.points.push(point);
+          dispatch(addPointCoord(point));
         }}
       />
       <BottomToolbar.Action
