@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#005b96',
+    backgroundColor: '#008080',
   },
 });
 

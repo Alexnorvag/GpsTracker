@@ -27,6 +27,20 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
   const getPolylineId = () => polylineId.current++;
   const getCoordId = () => coordId.current++;
 
+  const createNewPolyline = () => {
+    dispatch(
+      createPolyline({
+        id: getPolylineId(),
+        ...polyline.current,
+        name: `Untitled-${polylineId.current - 1}`,
+      }),
+    );
+
+    coordId.current = 0;
+    polyline.current.lines = [];
+    polyline.current.points = [];
+  };
+
   useEffect(() => {
     if (polylines.length > 0) {
       const lastId =
@@ -36,6 +50,7 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
 
       polylineId.current = lastId;
     }
+    console.log('polylines: ', polylines);
   }, [polylines]);
 
   useEffect(() => {
@@ -70,15 +85,7 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         title="Build"
         iconName="check"
         IconElement={<Icon name="check" size={30} color="black" />}
-        onPress={() => {
-          dispatch(
-            createPolyline({
-              id: getPolylineId(),
-              ...polyline.current,
-              name: `Untitled-${polylineId.current - 1}`,
-            }),
-          );
-        }}
+        onPress={createNewPolyline}
       />
       <BottomToolbar.Action
         title={isBuildingRoute ? 'Pause' : 'Start'}
