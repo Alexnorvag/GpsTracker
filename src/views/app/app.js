@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {Provider} from 'react-redux';
 import {View, Text, StyleSheet, SafeAreaView} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
 import store from '../../redux/store';
+import {Provider} from 'react-redux';
+
 import {IS_ANDROID} from '../../utils';
 import Map from '../../components/map/map';
 

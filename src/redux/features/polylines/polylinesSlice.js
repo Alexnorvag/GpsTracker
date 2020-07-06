@@ -10,7 +10,7 @@ export const fetchPolylines = createAsyncThunk(
   'polylines/fetchAll',
   async () => {
     const res = await polylineAPI.fetchAll();
-    console.log('Polyline [GET ALL] ->', res);
+    // console.log('Polyline [GET ALL] ->', res);
     return res;
   },
 );
@@ -47,11 +47,10 @@ export const slice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchPolylines.pending, (state, action) => {
-      console.log('pending');
       state.loading = true;
     });
     builder.addCase(fetchPolylines.fulfilled, (state, action) => {
-      console.log('fulfilled');
+      // console.log('action: ', action)
       polylinesAdapter.upsertMany(state, action.payload);
       state.loading = false;
     });

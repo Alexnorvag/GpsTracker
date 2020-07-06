@@ -2,9 +2,12 @@ import React, {useState, useRef, useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {addCoord, addPointCoord} from './coordsSlice';
-import {createPolyline} from '../../features/polylines/polylinesSlice';
+import {
+  createPolyline,
+  selectAllPolylines,
+} from '../../features/polylines/polylinesSlice';
 
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -12,6 +15,7 @@ import {IS_ANDROID} from '../../../utils';
 
 const CoordsControls = ({currentLocation, changeModalState}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
+  const polylines = useSelector(selectAllPolylines);
 
   const dispatch = useDispatch();
 
@@ -22,6 +26,17 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
 
   const getPolylineId = () => polylineId.current++;
   const getCoordId = () => coordId.current++;
+
+  useEffect(() => {
+    if (polylines.length > 0) {
+      const lastId =
+        polylines.reduce((prev, current) =>
+          +current.id > +prev.id ? current : prev,
+        ).id + 1;
+
+      polylineId.current = lastId;
+    }
+  }, [polylines]);
 
   useEffect(() => {
     watchID.current = Geolocation.watchPosition(
@@ -56,7 +71,13 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         iconName="check"
         IconElement={<Icon name="check" size={30} color="black" />}
         onPress={() => {
-          dispatch(createPolyline({id: getPolylineId(), ...polyline.current}));
+          dispatch(
+            createPolyline({
+              id: getPolylineId(),
+              ...polyline.current,
+              name: `Untitled-${polylineId.current - 1}`,
+            }),
+          );
         }}
       />
       <BottomToolbar.Action

@@ -3,11 +3,7 @@ import {View, StyleSheet, Alert} from 'react-native';
 
 import {useSelector, useDispatch} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
-import {
-  fetchPolylines,
-  deletePolylines,
-  selectAllPolylines,
-} from '../../redux/features/polylines/polylinesSlice';
+import {fetchPolylines, deletePolylines} from '../../redux/features/polylines/polylinesSlice';
 
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
@@ -29,23 +25,14 @@ const Map = () => {
     followUserMode: 'normal',
     followUserLocation: true,
   });
-  const [modalVisible, setModalVisible] = useState(false);
+  const [bleModalVisible, setBleModalVisible] = useState(false);
   const coords = useSelector(selectAllCoords);
-  const polylines = useSelector(selectAllPolylines);
   const pointsCoords = useSelector((state) => state.coords.points);
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
 
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchPolylines());
-  }, []);
-
-  useEffect(() => {
-    console.log('polylines: ', polylines);
-  }, [polylines]);
 
   const onUserLocationUpdate = (location) => {
     if (location) {
@@ -84,10 +71,14 @@ const Map = () => {
     cameraRef.current.zoomTo(zoom, 400);
   };
 
-  const changeModalState = () => setModalVisible((v) => !v);
+  const changeModalState = () => setBleModalVisible((v) => !v);
 
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(true);
+
+    // Get all polylines from db
+    // dispatch(deletePolylines());
+    dispatch(fetchPolylines());
   }, []);
 
   return (
@@ -141,9 +132,9 @@ const Map = () => {
         )}
       </MapboxGL.MapView>
 
-      {modalVisible && (
+      {bleModalVisible && (
         <BluetoothManager
-          modalVisible={modalVisible}
+          modalVisible={bleModalVisible}
           changeModalState={changeModalState}
         />
       )}
