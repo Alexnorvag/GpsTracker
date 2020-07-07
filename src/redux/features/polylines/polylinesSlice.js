@@ -4,7 +4,7 @@ import {
   createEntityAdapter,
 } from '@reduxjs/toolkit';
 import {polylineAPI} from './polylineAPI';
-import {act} from 'react-test-renderer';
+import {sortByProperty} from '../../../utils';
 
 export const fetchPolylines = createAsyncThunk(
   'polylines/fetchAll',
@@ -33,7 +33,19 @@ export const deletePolylines = createAsyncThunk(
   },
 );
 
-export const polylinesAdapter = createEntityAdapter();
+export const deletePolyline = createAsyncThunk(
+  'polylines/removeOne',
+  async (polylineId) => {
+    const res = await polylineAPI.removeOne(polylineId);
+    console.log('Polyline [DELETE ONE] -> ', res);
+    return res;
+  },
+);
+
+export const polylinesAdapter = createEntityAdapter({
+  selectId: (polyline) => polyline._id,
+  sortComparer: (a, b) => sortByProperty(a.createdAt, b.createdAt),
+});
 
 const initialState = polylinesAdapter.getInitialState({loading: false});
 
@@ -50,9 +62,14 @@ export const slice = createSlice({
       state.loading = true;
     });
     builder.addCase(fetchPolylines.fulfilled, (state, action) => {
-      // console.log('action: ', action)
       polylinesAdapter.upsertMany(state, action.payload);
       state.loading = false;
+    });
+    builder.addCase(createPolyline.fulfilled, (state, action) => {
+      polylinesAdapter.addOne(state, action.payload);
+    });
+    builder.addCase(deletePolyline.fulfilled, (state, action) => {
+      polylinesAdapter.removeOne(state, action.payload);
     });
   },
 });

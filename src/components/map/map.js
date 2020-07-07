@@ -11,6 +11,7 @@ import {
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
 import Spinner from '../spinner';
+import PolylinesManager from '../../redux/features/polylines/PolylinesManager';
 import BottomToolbar from './bottom-toolbar/toolbar';
 import MapControls from './controls/controls';
 import BluetoothManager from '../bluetooth-manager/bluetoothManager';
@@ -142,6 +143,8 @@ const Map = () => {
           </MapboxGL.ShapeSource>
         )}
       </MapboxGL.MapView>
+
+      <PolylinesManager />
 
       {bleModalVisible && (
         <BluetoothManager

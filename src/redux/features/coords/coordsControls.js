@@ -1,6 +1,7 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import shortid from 'shortid';
 
 import {useDispatch, useSelector} from 'react-redux';
 import {addCoord, addPointCoord} from './coordsSlice';
@@ -21,18 +22,18 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
 
   const watchID = useRef(0);
   const coordId = useRef(0);
-  const polylineId = useRef(0);
+  // const polylineId = useRef(0);
   const polyline = useRef({name: 'Untitled', lines: [], points: []});
 
-  const getPolylineId = () => polylineId.current++;
+  // const getPolylineId = () => polylineId.current++;
   const getCoordId = () => coordId.current++;
 
   const createNewPolyline = () => {
     dispatch(
       createPolyline({
-        id: getPolylineId(),
+        // id: getPolylineId(),
         ...polyline.current,
-        name: `Untitled-${polylineId.current - 1}`,
+        name: shortid.generate(),
       }),
     );
 
@@ -42,14 +43,14 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
   };
 
   useEffect(() => {
-    if (polylines.length > 0) {
-      const lastId =
-        polylines.reduce((prev, current) =>
-          +current.id > +prev.id ? current : prev,
-        ).id + 1;
+    // if (polylines.length > 0) {
+    //   const lastId =
+    //     polylines.reduce((prev, current) =>
+    //       +current.id > +prev.id ? current : prev,
+    //     ).id + 1;
 
-      polylineId.current = lastId;
-    }
+    //   polylineId.current = lastId;
+    // }
     console.log('polylines: ', polylines);
   }, [polylines]);
 
@@ -83,8 +84,8 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
     <BottomToolbar wrapperStyle={stylese.wrapper}>
       <BottomToolbar.Action
         title="Build"
-        iconName="check"
-        IconElement={<Icon name="check" size={30} color="black" />}
+        iconName="plus"
+        IconElement={<Icon name="plus" size={30} color="black" />}
         onPress={createNewPolyline}
       />
       <BottomToolbar.Action

@@ -2,16 +2,14 @@ import {Platform} from 'react-native';
 
 export const IS_ANDROID = Platform.OS === 'android';
 
-export function onSortOptions(a, b) {
-  if (a.label < b.label) {
+export function sortByProperty(a, b) {
+  if (a > b) {
     return -1;
-  }
-
-  if (a.label > b.label) {
+  } else if (a < b) {
     return 1;
+  } else {
+    return 0;
   }
-
-  return 0;
 }
 
 export const createPointsShapeSource = (coordinates) => ({

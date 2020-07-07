@@ -5,4 +5,5 @@ export const dbPolyline = new DataStore({
   filename: 'polylines',
   autoload: true,
   storage: AsyncStorage,
+  timestampData: true,
 });
