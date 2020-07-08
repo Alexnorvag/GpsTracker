@@ -23,7 +23,7 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
   const watchID = useRef(0);
   const coordId = useRef(0);
   // const polylineId = useRef(0);
-  const polyline = useRef({name: 'Untitled', lines: [], points: []});
+  const polyline = useRef({ lines: [], points: []});
 
   // const getPolylineId = () => polylineId.current++;
   const getCoordId = () => coordId.current++;

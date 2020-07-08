@@ -19,37 +19,48 @@ const PolylinesManager = () => {
 
   return (
     // <SafeAreaView>
-      <SideMenu
-        // menu={
-        //   <View style={styles.menu}>
-        //     <Text>Menu</Text>
-        //   </View>
-        // }
-        isOpen={isOpen}
-        onChange={(isOpen) => updateSideMenuState(isOpen)}>
-        <View style={styles.container}>
-          <Text>Side bar content</Text>
-        </View>
-        <TouchableOpacity onPress={toggleSideMenu} style={styles.button}>
-          <Text>Side</Text>
-        </TouchableOpacity>
-      </SideMenu>
+      <View style={styles.cont}>
+        <SideMenu
+          menu={
+            <View style={styles.menu}>
+              <TouchableOpacity onPress={toggleSideMenu}><Text>Menu</Text></TouchableOpacity>
+            </View>
+          }
+          edgeHitWidth={250}
+          isOpen={isOpen}
+          onChange={(isOpen) => updateSideMenuState(isOpen)}>
+          <View style={styles.container}>
+            <Text>Side bar content</Text>
+          </View>
+          <TouchableOpacity onPress={toggleSideMenu} style={styles.button}>
+            <Text>Side</Text>
+          </TouchableOpacity>
+        </SideMenu>
+      </View>
     // </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  cont: {
+    position: 'absolute',
+    top: 50,
+    width: 100,
+    height: 50,
+    // flex: 1,
+    padding: 20,
+    // width: window.width,
+    // height: window.height,
+  },
   menu: {
-    flex: 1,
-    width: window.width,
-    height: window.height,
+    // flex: 1,
     backgroundColor: 'gray',
     padding: 20,
   },
   button: {
     position: 'absolute',
     top: 20,
-    padding: 10,
+    padding: 50,
   },
   container: {
     flex: 1,
