@@ -7,6 +7,7 @@ import {Provider} from 'react-redux';
 
 import {IS_ANDROID} from '../../utils';
 import Map from '../../components/map/map';
+import PolylineManager from '../../redux/features/polylines/PolylinesManager'
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
@@ -50,7 +51,8 @@ const App = () => {
             </SafeAreaView>
           )
         ) : (
-          <Map />
+          // <Map />
+          <PolylineManager/>
         )}
       </View>
     </Provider>
@@ -61,8 +63,8 @@ const styles = StyleSheet.create({
   page: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     backgroundColor: '#008080',
   },
 });

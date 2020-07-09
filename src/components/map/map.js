@@ -144,7 +144,7 @@ const Map = () => {
         )}
       </MapboxGL.MapView>
 
-      <PolylinesManager />
+      {/* <PolylinesManager /> */}
 
       {bleModalVisible && (
         <BluetoothManager

@@ -4,10 +4,13 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
+  // SafeAreaView,
   Dimensions,
 } from 'react-native';
 import SideMenu from 'react-native-side-menu-updated';
+import Icon from 'react-native-vector-icons/AntDesign';
+
+import Map from '../../../components/map/map';
 
 const window = Dimensions.get('window');
 
@@ -18,49 +21,46 @@ const PolylinesManager = () => {
   const updateSideMenuState = (isOpen) => setIsOpen(isOpen);
 
   return (
-    // <SafeAreaView>
-      <View style={styles.cont}>
-        <SideMenu
-          menu={
-            <View style={styles.menu}>
-              <TouchableOpacity onPress={toggleSideMenu}><Text>Menu</Text></TouchableOpacity>
-            </View>
-          }
-          edgeHitWidth={250}
-          isOpen={isOpen}
-          onChange={(isOpen) => updateSideMenuState(isOpen)}>
-          <View style={styles.container}>
-            <Text>Side bar content</Text>
-          </View>
-          <TouchableOpacity onPress={toggleSideMenu} style={styles.button}>
-            <Text>Side</Text>
+    // <SafeAreaView style={styles.container}>
+    <SideMenu
+      menu={
+        <View style={styles.menu}>
+          <TouchableOpacity onPress={toggleSideMenu}>
+            <Text>Menu</Text>
           </TouchableOpacity>
-        </SideMenu>
+        </View>
+      }
+      // edgeHitWidth={250}
+      isOpen={isOpen}
+      onChange={(isOpen) => updateSideMenuState(isOpen)}>
+      <View style={styles.container}>
+        {/* <Text>Side bar content</Text> */}
+        <Map />
       </View>
+      <TouchableOpacity onPress={toggleSideMenu} style={styles.button}>
+        <Icon name={'doubleright'} size={25} color="black" />
+      </TouchableOpacity>
+    </SideMenu>
     // </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  cont: {
-    position: 'absolute',
-    top: 50,
-    width: 100,
-    height: 50,
-    // flex: 1,
-    padding: 20,
-    // width: window.width,
-    // height: window.height,
-  },
   menu: {
-    // flex: 1,
+    flex: 1,
     backgroundColor: 'gray',
-    padding: 20,
+    padding: 80,
+    width: window.width,
+    height: window.height,
   },
   button: {
     position: 'absolute',
-    top: 20,
-    padding: 50,
+    top: (window.height - 55) / 2,
+    paddingHorizontal: 5,
+    paddingVertical: 15,
+    borderBottomRightRadius: 12,
+    borderTopRightRadius: 12,
+    backgroundColor: '#FFF',
   },
   container: {
     flex: 1,
