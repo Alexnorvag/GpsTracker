@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, StyleSheet, Alert} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 
 import {useSelector, useDispatch} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
@@ -11,7 +12,6 @@ import {
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
 import Spinner from '../spinner';
-import PolylinesManager from '../../redux/features/polylines/PolylinesManager';
 import BottomToolbar from './bottom-toolbar/toolbar';
 import MapControls from './controls/controls';
 import BluetoothManager from '../bluetooth-manager/bluetoothManager';
@@ -20,6 +20,8 @@ import {
   createPolylineShapeSource,
   createPointsShapeSource,
 } from '../../utils';
+
+const window = Dimensions.get('window');
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
@@ -86,7 +88,7 @@ const Map = () => {
 
     // dispatch(deletePolylines());
     // Get all polylines from db
-    dispatch(fetchPolylines());
+    // dispatch(fetchPolylines());
   }, []);
 
   return (
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
   },
   mapControlsContainer: {
     position: 'absolute',
-    bottom: IS_ANDROID ? 100 : 110,
+    top: (window.height - 138) / 2 - getStatusBarHeight(),
     right: 0,
     flex: 1,
     backgroundColor: '#ffffff',

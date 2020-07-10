@@ -1,14 +1,21 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
-  // SafeAreaView,
   Dimensions,
 } from 'react-native';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 import SideMenu from 'react-native-side-menu-updated';
 import Icon from 'react-native-vector-icons/AntDesign';
+
+import {useSelector, useDispatch} from 'react-redux';
+import {selectAllCoords} from '../coords/coordsSlice';
+import {
+  fetchPolylines,
+  deletePolylines,
+} from './polylinesSlice';
+import PolylinesMenu from './polylinesMenu';
 
 import Map from '../../../components/map/map';
 
@@ -17,28 +24,37 @@ const window = Dimensions.get('window');
 const PolylinesManager = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const dispatch = useDispatch();
+
   const toggleSideMenu = () => setIsOpen((state) => !state);
   const updateSideMenuState = (isOpen) => setIsOpen(isOpen);
+
+  useEffect(() => {
+    // dispatch(deletePolylines());
+    // Get all polylines from db
+    dispatch(fetchPolylines());
+  }, []);
 
   return (
     // <SafeAreaView style={styles.container}>
     <SideMenu
       menu={
         <View style={styles.menu}>
-          <TouchableOpacity onPress={toggleSideMenu}>
-            <Text>Menu</Text>
-          </TouchableOpacity>
+          <PolylinesMenu />
         </View>
       }
-      // edgeHitWidth={250}
       isOpen={isOpen}
+      openMenuOffset={window.width - 40}
       onChange={(isOpen) => updateSideMenuState(isOpen)}>
       <View style={styles.container}>
-        {/* <Text>Side bar content</Text> */}
         <Map />
       </View>
-      <TouchableOpacity onPress={toggleSideMenu} style={styles.button}>
-        <Icon name={'doubleright'} size={25} color="black" />
+      <TouchableOpacity onPress={toggleSideMenu} style={styles.openMenuButton}>
+        <Icon
+          name={isOpen ? 'doubleleft' : 'doubleright'}
+          size={25}
+          color="black"
+        />
       </TouchableOpacity>
     </SideMenu>
     // </SafeAreaView>
@@ -48,25 +64,25 @@ const PolylinesManager = () => {
 const styles = StyleSheet.create({
   menu: {
     flex: 1,
-    backgroundColor: 'gray',
-    padding: 80,
-    width: window.width,
-    height: window.height,
+    backgroundColor: '#E8E8E8',
+    // padding: 80,
+    // backgroundColor: '#F5F5F5',
+    // borderRightWidth: 1,
   },
-  button: {
+  openMenuButton: {
     position: 'absolute',
-    top: (window.height - 55) / 2,
+    top: (window.height - 55) / 2 - getStatusBarHeight(),
     paddingHorizontal: 5,
     paddingVertical: 15,
     borderBottomRightRadius: 12,
     borderTopRightRadius: 12,
-    backgroundColor: '#FFF',
+    backgroundColor: '#F5F5F5',
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: '#F5FCFF',
   },
 });
 
