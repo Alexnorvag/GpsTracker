@@ -9,8 +9,7 @@ import {getStatusBarHeight} from 'react-native-status-bar-height';
 import SideMenu from 'react-native-side-menu-updated';
 import Icon from 'react-native-vector-icons/AntDesign';
 
-import {useSelector, useDispatch} from 'react-redux';
-import {selectAllCoords} from '../coords/coordsSlice';
+import {useDispatch} from 'react-redux';
 import {
   fetchPolylines,
   deletePolylines,
