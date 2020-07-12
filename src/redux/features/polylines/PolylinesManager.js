@@ -63,7 +63,10 @@ const PolylinesManager = () => {
 const styles = StyleSheet.create({
   menu: {
     flex: 1,
-    backgroundColor: '#E8E8E8',
+    backgroundColor: '#FFF',
+    padding: 0,
+    margin: 0,
+    // backgroundColor: '#E8E8E8',
     // padding: 80,
     // backgroundColor: '#F5F5F5',
     // borderRightWidth: 1,

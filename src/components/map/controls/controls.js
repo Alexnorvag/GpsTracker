@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 4,
     borderBottomWidth: index === lastIndex ? 0 : 1,
-    borderColor: '#cccccc',
+    borderColor: '#CCC',
   }),
 });
 

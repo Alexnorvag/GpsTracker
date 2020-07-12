@@ -37,7 +37,7 @@ const PolylinesMenu = () => {
                 <Text>{`Polyline: ${polyline.name}`}</Text>
               </View>
             </TouchableOpacity>
-            <View style={[commonStyles.listControls]}>
+            <View style={[commonStyles.listControls, styles.listControls]}>
               <TouchableOpacity
                 onPress={() => console.log('removal id: ', polyline._id)}>
                 <Icon name={'delete'} size={30} color="#FF0033" />
@@ -51,9 +51,13 @@ const PolylinesMenu = () => {
 
 const styles = StyleSheet.create({
   listButton: {
-    borderTopRightRadius: 0,
-    borderBottomRightRadius: 0,
+    borderRadius: 0,
+    // borderTopRightRadius: 0,
+    // borderBottomRightRadius: 0,
   },
+  listControls: {
+    borderRadius: 0,
+  }
 });
 
 export default PolylinesMenu;
