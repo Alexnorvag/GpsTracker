@@ -21,7 +21,7 @@ import Map from '../../../components/map/map';
 const window = Dimensions.get('window');
 
 const PolylinesManager = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const dispatch = useDispatch();
 
