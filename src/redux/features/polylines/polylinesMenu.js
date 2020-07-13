@@ -10,17 +10,20 @@ import CheckBox from '@react-native-community/checkbox';
 import Icon from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
 
-import {useSelector} from 'react-redux';
-import {selectAllPolylines} from './polylinesSlice';
+import {useSelector, useDispatch} from 'react-redux';
+import {selectAllPolylines, updatePolyline} from './polylinesSlice';
 
 import {commonStyles} from '../../../styles';
 
-const PolylinesMenu = () => {
+const PolylinesMenu = ({toggleSideMenu}) => {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedList, setSelectedList] = useState([]);
   const polylines = useSelector(selectAllPolylines);
 
-  isAllItemsSelected = () => polylines.length === selectedList.length;
+  const dispatch = useDispatch();
+
+  isAllItemsSelected = () =>
+    !_.isEmpty(polylines) && polylines.length === selectedList.length;
 
   changeAllItemsSelecting = () => {
     isAllSelected
@@ -38,11 +41,10 @@ const PolylinesMenu = () => {
 
   isItemIncludes = (itemId) => selectedList.includes(itemId);
 
-  console.log('RESULT LIST: ', selectedList);
-
-  useEffect(() => {
-    setIsAllSelected(isAllItemsSelected());
-  }, [selectedList]);
+  useEffect(() => setIsAllSelected(isAllItemsSelected()), [
+    polylines,
+    selectedList,
+  ]);
 
   useEffect(() => {
     console.log('polylines: ', polylines);
@@ -50,42 +52,48 @@ const PolylinesMenu = () => {
 
   return (
     <View style={styles.menuContainer}>
-      <View style={styles.menuControls}>
+      <View style={styles.menuControlsContainer}>
         <TouchableOpacity
-          style={styles.selectAllContainer}
+          style={[styles.selectAllContainer, styles.menuControls]}
           onPress={changeAllItemsSelecting}>
           <CheckBox
-            boxType={'square'}
             lineWidth={1}
-            disabled={false}
             value={isAllSelected}
-            // value={isAllItemsSelected()}
             onChange={changeAllItemsSelecting}
-            animationDuration={0.35}
+            animationDuration={0}
+            onCheckColor={'#000'}
+            onTintColor={'#000'}
           />
-          <Text>Select All</Text>
+          <Text style={styles.menuControlsLabels}>Select All</Text>
         </TouchableOpacity>
-        <Text>Delete</Text>
-        <Text>Open</Text>
-        <Text>Rename</Text>
+        <TouchableOpacity style={[styles.menuControls]}>
+          <Icon name={'sharealt'} size={25} color="#000" />
+          <Text style={[styles.menuControlsLabels]}>Share</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.menuControls, styles.deleteItemsContol]}>
+          <Icon name={'delete'} size={25} color="#FFF" />
+          <Text style={[styles.menuControlsLabels, styles.deleteItemsLabel]}>
+            Delete
+          </Text>
+        </TouchableOpacity>
       </View>
       <ScrollView style={[commonStyles.listContainer]}>
-        {polylines.length > 0 &&
+        {!_.isEmpty(polylines) &&
           polylines.map((polyline) => (
             <View key={polyline._id} style={[commonStyles.listItem]}>
-              <View style={styles.cbContainer}>
-                <CheckBox
-                  boxType={'square'}
-                  lineWidth={1}
-                  disabled={false}
-                  value={isItemIncludes(polyline._id)}
-                  onValueChange={() => changeItemSelecting(polyline._id)}
-                  animationDuration={0.35}
-                />
-              </View>
+              <CheckBox
+                lineWidth={1}
+                value={isItemIncludes(polyline._id)}
+                onValueChange={() => changeItemSelecting(polyline._id)}
+                animationDuration={0.27}
+                onCheckColor={'#000'}
+                onTintColor={'#000'}
+              />
               <TouchableOpacity
                 key={polyline._id}
-                style={[commonStyles.listButton, styles.listButton]}>
+                style={[commonStyles.listItemContent, styles.listButton]}
+                onPress={toggleSideMenu}>
                 <View
                   style={{
                     backgroundColor: 'red',
@@ -95,10 +103,13 @@ const PolylinesMenu = () => {
                   <Text>{`Polyline: ${polyline.name}`}</Text>
                 </View>
               </TouchableOpacity>
-              <View style={[commonStyles.listControls, styles.listControls]}>
+              <View
+                style={[commonStyles.listItemControls, styles.listControls]}>
                 <TouchableOpacity
-                  onPress={() => console.log('removal id: ', polyline._id)}>
-                  <Icon name={'delete'} size={30} color="#FF0033" />
+                  onPress={() => {
+                    dispatch(updatePolyline({_id: polyline._id, name: 'test-1'}));
+                  }}>
+                  <Icon name={'edit'} size={25} color="#000" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -113,16 +124,36 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
   },
+  menuControlsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+  },
   menuControls: {
     flexDirection: 'row',
-    // backgroundColor: 'blue',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 25,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    backgroundColor: '#FFF',
+  },
+  menuControlsLabels: {
+    paddingHorizontal: 5,
   },
   selectAllContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    // paddingVertical: 7,
+    // flexDirection: 'row',
+    // alignItems: 'center',
   },
-  cbContainer: {
-    paddingHorizontal: 10,
+  deleteItemsContol: {
+    borderColor: '#FFF',
+    backgroundColor: '#FF0033',
+  },
+  deleteItemsLabel: {
+    color: '#FFF',
   },
   listButton: {
     // borderRadius: 0,

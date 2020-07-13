@@ -42,6 +42,16 @@ export const deletePolyline = createAsyncThunk(
   },
 );
 
+export const updatePolyline = createAsyncThunk(
+  'polylines/updateOne',
+  async (polylineId) => {
+    console.log('polylineID: ', polylineId);
+    const res = await polylineAPI.updateOne(polylineId._id, polylineId.name);
+    console.log('Polyline [UPDATE ONE] -> ', res);
+    return res;
+  },
+);
+
 export const polylinesAdapter = createEntityAdapter({
   selectId: (polyline) => polyline._id,
   sortComparer: (a, b) => sortByProperty(a.createdAt, b.createdAt),
@@ -70,6 +80,9 @@ export const slice = createSlice({
     });
     builder.addCase(deletePolyline.fulfilled, (state, action) => {
       polylinesAdapter.removeOne(state, action.payload);
+    });
+    builder.addCase(updatePolyline.fulfilled, (state, action) => {
+      polylinesAdapter.updateOne(state, action.payload);
     });
   },
 });

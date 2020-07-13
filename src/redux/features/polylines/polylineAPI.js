@@ -29,4 +29,11 @@ export const polylineAPI = {
       console.log(`😲 polylines deleting failed: ${e}`);
     }
   },
+  updateOne: async (docId, docName) => {
+    try {
+      return await dbPolyline.updateAsync({_id: docId}, {name: docName});
+    } catch (error) {
+      console.log(`😲 polyline updating failed: ${e}`);
+    }
+  },
 };

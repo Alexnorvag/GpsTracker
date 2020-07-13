@@ -1,19 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import SideMenu from 'react-native-side-menu-updated';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 import {useDispatch} from 'react-redux';
-import {
-  fetchPolylines,
-  deletePolylines,
-} from './polylinesSlice';
+import {fetchPolylines, deletePolylines} from './polylinesSlice';
 import PolylinesMenu from './polylinesMenu';
 
 import Map from '../../../components/map/map';
@@ -39,7 +31,7 @@ const PolylinesManager = () => {
     <SideMenu
       menu={
         <View style={styles.menu}>
-          <PolylinesMenu />
+          <PolylinesMenu toggleSideMenu={toggleSideMenu} />
         </View>
       }
       isOpen={isOpen}
@@ -66,10 +58,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     padding: 0,
     margin: 0,
-    // backgroundColor: '#E8E8E8',
-    // padding: 80,
-    // backgroundColor: '#F5F5F5',
-    // borderRightWidth: 1,
   },
   openMenuButton: {
     position: 'absolute',
