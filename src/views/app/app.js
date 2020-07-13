@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Provider} from 'react-redux';
-import {View, Text, StyleSheet, SafeAreaView} from 'react-native';
+import {View, Text, StyleSheet, SafeAreaView, StatusBar} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 
 import store from '../../redux/store';
+import {Provider} from 'react-redux';
+
 import {IS_ANDROID} from '../../utils';
-import Map from '../../components/map/map';
+import PolylineManager from '../../redux/features/polylines/polylinesManager';
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
@@ -35,6 +37,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <View style={styles.page}>
+      <StatusBar backgroundColor="white" barStyle={'dark-content'} />
         {IS_ANDROID && !isAndroidPermissionGranted ? (
           isFetchingAndroidPermission ? null : (
             <SafeAreaView
@@ -49,7 +52,7 @@ const App = () => {
             </SafeAreaView>
           )
         ) : (
-          <Map />
+          <PolylineManager />
         )}
       </View>
     </Provider>
@@ -59,10 +62,9 @@ const App = () => {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
+    paddingTop: getStatusBarHeight(),
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#005b96',
+    backgroundColor: '#FFF',
   },
 });
 

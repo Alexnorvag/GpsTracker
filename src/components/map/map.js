@@ -1,11 +1,17 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, StyleSheet, Alert} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
+import {
+  fetchPolylines,
+  deletePolylines,
+} from '../../redux/features/polylines/polylinesSlice';
 
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
+import Spinner from '../spinner';
 import BottomToolbar from './bottom-toolbar/toolbar';
 import MapControls from './controls/controls';
 import BluetoothManager from '../bluetooth-manager/bluetoothManager';
@@ -15,35 +21,42 @@ import {
   createPointsShapeSource,
 } from '../../utils';
 
+const window = Dimensions.get('window');
+
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
 
 const Map = () => {
+  const [mapLoading, setMapLoading] = useState(true);
   const [followOptions, setFollowOptions] = useState({
     followUserMode: 'normal',
     followUserLocation: true,
   });
-  const [modalVisible, setModalVisible] = useState(false);
+  const [bleModalVisible, setBleModalVisible] = useState(false);
   const coords = useSelector(selectAllCoords);
   const pointsCoords = useSelector((state) => state.coords.points);
+  const polylinesLoading = useSelector((state) => state.polylines.loading);
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
+
+  const dispatch = useDispatch();
 
   const onUserLocationUpdate = (location) => {
     if (location) {
       const {longitude, latitude} = location.coords;
 
       userLocation.current = {longitude, latitude};
-    } else {
-      Alert.alert(
-        'Location failed',
-        'No location found. Turn on gps to continue.',
-        [{text: 'OK'}],
-        {cancelable: true},
-      );
     }
+    // else {
+    //   Alert.alert(
+    //     'Location failed',
+    //     'No location found. Turn on gps to continue.',
+    //     [{text: 'OK'}],
+    //     {cancelable: true},
+    //   );
+    // }
   };
 
   const getCurrentLocation = () => userLocation.current;
@@ -68,19 +81,27 @@ const Map = () => {
     cameraRef.current.zoomTo(zoom, 400);
   };
 
-  const changeModalState = () => setModalVisible((v) => !v);
+  const changeModalState = () => setBleModalVisible((v) => !v);
 
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(true);
+
+    // dispatch(deletePolylines());
+    // Get all polylines from db
+    // dispatch(fetchPolylines());
   }, []);
 
   return (
     <View style={styles.container}>
+      {(mapLoading || polylinesLoading) && (
+        <Spinner color="#f5b52e" styles={styles.spinner} />
+      )}
       <MapboxGL.MapView
         ref={mapRef}
         styleURL={'mapbox://styles/alexnorvag/ck9efq0oz2d0x1ioftrtazzyz'}
         style={styles.map}
-        zoomEnabled={true}>
+        zoomEnabled={true}
+        onDidFinishRenderingMapFully={() => setMapLoading(false)}>
         <MapboxGL.Camera
           ref={cameraRef}
           followUserMode={followOptions.followUserMode}
@@ -125,19 +146,19 @@ const Map = () => {
         )}
       </MapboxGL.MapView>
 
-      {modalVisible && (
+      {/* <PolylinesManager /> */}
+
+      {bleModalVisible && (
         <BluetoothManager
-          modalVisible={modalVisible}
+          modalVisible={bleModalVisible}
           changeModalState={changeModalState}
         />
       )}
-
       <BottomToolbar
         styles={[styles.toolbarContainer]}
         currentLocation={getCurrentLocation}
         changeModalState={changeModalState}
       />
-
       <MapControls
         style={styles.mapControlsContainer}
         buttonsProps={{
@@ -179,7 +200,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#03396c',
+    backgroundColor: '#008080',
+  },
+  spinner: {
+    position: 'absolute',
+    backgroundColor: 'rgba(0, 128, 128, 0.4)',
+    width: '100%',
+    height: '100%',
+    zIndex: 1,
   },
   map: {
     flex: 1,
@@ -194,13 +222,12 @@ const styles = StyleSheet.create({
   },
   mapControlsContainer: {
     position: 'absolute',
-    bottom: IS_ANDROID ? 100 : 110,
+    top: (window.height - 138) / 2 - getStatusBarHeight(),
     right: 0,
     flex: 1,
     backgroundColor: '#ffffff',
     paddingHorizontal: 4,
-    // paddingVertical: 10,
-    borderRadius: 10
+    borderRadius: 10,
   },
   centeredView: {
     position: 'absolute',

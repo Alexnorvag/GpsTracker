@@ -1,9 +1,14 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import shortid from 'shortid';
 
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {addCoord, addPointCoord} from './coordsSlice';
+import {
+  createPolyline,
+  selectAllPolylines,
+} from '../../features/polylines/polylinesSlice';
 
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -11,24 +16,56 @@ import {IS_ANDROID} from '../../../utils';
 
 const CoordsControls = ({currentLocation, changeModalState}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
+  const polylines = useSelector(selectAllPolylines);
 
   const dispatch = useDispatch();
 
   const watchID = useRef(0);
   const coordId = useRef(0);
+  // const polylineId = useRef(0);
+  const polyline = useRef({ lines: [], points: []});
 
+  // const getPolylineId = () => polylineId.current++;
   const getCoordId = () => coordId.current++;
+
+  const createNewPolyline = () => {
+    dispatch(
+      createPolyline({
+        // id: getPolylineId(),
+        ...polyline.current,
+        name: shortid.generate(),
+      }),
+    );
+
+    coordId.current = 0;
+    polyline.current.lines = [];
+    polyline.current.points = [];
+  };
+
+  useEffect(() => {
+    // if (polylines.length > 0) {
+    //   const lastId =
+    //     polylines.reduce((prev, current) =>
+    //       +current.id > +prev.id ? current : prev,
+    //     ).id + 1;
+
+    //   polylineId.current = lastId;
+    // }
+    console.log('polylines: ', polylines);
+  }, [polylines]);
 
   useEffect(() => {
     watchID.current = Geolocation.watchPosition(
       (position) => {
-        dispatch(
-          addCoord({
-            id: getCoordId(),
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          }),
-        );
+        const coord = {
+          id: getCoordId(),
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        polyline.current.lines.push(coord);
+
+        dispatch(addCoord(coord));
       },
       (error) => console.log('error: ', error.message),
       {
@@ -47,11 +84,9 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
     <BottomToolbar wrapperStyle={stylese.wrapper}>
       <BottomToolbar.Action
         title="Build"
-        iconName="check"
-        IconElement={<Icon name="check" size={30} color="black" />}
-        onPress={(index, propsOfThisAction) =>
-          console.warn(index + ' title: ' + propsOfThisAction.title)
-        }
+        iconName="plus"
+        IconElement={<Icon name="plus" size={30} color="black" />}
+        onPress={createNewPolyline}
       />
       <BottomToolbar.Action
         title={isBuildingRoute ? 'Pause' : 'Start'}
@@ -67,12 +102,13 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
           setIsBuildingRoute((p) => !p);
           const {longitude: lng, latitude: lat} = currentLocation();
 
-          dispatch(
-            addPointCoord({
-              lat,
-              lng,
-            }),
-          );
+          const point = {
+            lat,
+            lng,
+          };
+
+          polyline.current.points.push(point);
+          dispatch(addPointCoord(point));
         }}
       />
       <BottomToolbar.Action
