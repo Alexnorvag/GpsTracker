@@ -16,16 +16,22 @@ import {selectAllPolylines} from './polylinesSlice';
 import {commonStyles} from '../../../styles';
 
 const PolylinesMenu = () => {
-  const [isSelected, setSelection] = useState(false);
+  const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedList, setSelectedList] = useState([]);
   const polylines = useSelector(selectAllPolylines);
 
-  changeItemsSelecting = () => {
-    !isSelected
-      ? setSelectedList(polylines.map((polyline) => polyline._id))
-      : setSelectedList([]);
-    setSelection(!isSelected);
+  isAllItemsSelected = () => {
+    // return false;
+    return polylines.length === selectedList.length;
   };
+
+  changeAllItemsSelecting = () => {
+    isAllSelected
+      ? setSelectedList([])
+      : setSelectedList(polylines.map((polyline) => polyline._id));
+    setIsAllSelected(!isAllSelected);
+  };
+
   changeItemSelecting = (itemId) =>
     setSelectedList((list) =>
       isItemIncludes(itemId)
@@ -46,14 +52,13 @@ const PolylinesMenu = () => {
       <View style={styles.menuControls}>
         <TouchableOpacity
           style={styles.selectAllContainer}
-          onPress={changeItemsSelecting}>
+          onPress={changeAllItemsSelecting}>
           <CheckBox
             boxType={'square'}
             lineWidth={1}
             disabled={false}
-            value={isSelected}
-            // onValueChange={changeItemsSelecting}
-            onChange={changeItemsSelecting}
+            value={isAllItemsSelected()}
+            onChange={changeAllItemsSelecting}
             animationDuration={0.35}
           />
           <Text>Select All</Text>
