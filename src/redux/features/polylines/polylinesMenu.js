@@ -20,10 +20,7 @@ const PolylinesMenu = () => {
   const [selectedList, setSelectedList] = useState([]);
   const polylines = useSelector(selectAllPolylines);
 
-  isAllItemsSelected = () => {
-    // return false;
-    return polylines.length === selectedList.length;
-  };
+  isAllItemsSelected = () => polylines.length === selectedList.length;
 
   changeAllItemsSelecting = () => {
     isAllSelected
@@ -44,6 +41,10 @@ const PolylinesMenu = () => {
   console.log('RESULT LIST: ', selectedList);
 
   useEffect(() => {
+    setIsAllSelected(isAllItemsSelected());
+  }, [selectedList]);
+
+  useEffect(() => {
     console.log('polylines: ', polylines);
   }, [polylines]);
 
@@ -57,7 +58,8 @@ const PolylinesMenu = () => {
             boxType={'square'}
             lineWidth={1}
             disabled={false}
-            value={isAllItemsSelected()}
+            value={isAllSelected}
+            // value={isAllItemsSelected()}
             onChange={changeAllItemsSelecting}
             animationDuration={0.35}
           />
