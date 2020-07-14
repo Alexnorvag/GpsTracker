@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef, createRef} from 'react';
 import {
   View,
   ScrollView,
   Text,
   TouchableOpacity,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -19,6 +20,8 @@ const PolylinesMenu = ({toggleSideMenu}) => {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedList, setSelectedList] = useState([]);
   const polylines = useSelector(selectAllPolylines);
+  const collectionRef = useRef(polylines.map(() => createRef()));
+  const textInputValue = useRef('');
 
   const dispatch = useDispatch();
 
@@ -40,6 +43,11 @@ const PolylinesMenu = ({toggleSideMenu}) => {
     );
 
   isItemIncludes = (itemId) => selectedList.includes(itemId);
+
+  changeItemName = (text) => {
+    console.log('TEXT: ', text);
+    textInputValue.current = text;
+  };
 
   useEffect(() => setIsAllSelected(isAllItemsSelected()), [
     polylines,
@@ -80,7 +88,7 @@ const PolylinesMenu = ({toggleSideMenu}) => {
       </View>
       <ScrollView style={[commonStyles.listContainer]}>
         {!_.isEmpty(polylines) &&
-          polylines.map((polyline) => (
+          polylines.map((polyline, index) => (
             <View key={polyline._id} style={[commonStyles.listItem]}>
               <CheckBox
                 lineWidth={1}
@@ -96,18 +104,36 @@ const PolylinesMenu = ({toggleSideMenu}) => {
                 onPress={toggleSideMenu}>
                 <View
                   style={{
-                    backgroundColor: 'red',
                     flex: 1,
-                    flexDirection: 'column',
+                    flexDirection: 'row',
                   }}>
-                  <Text>{`Polyline: ${polyline.name}`}</Text>
+                  <Text>{`Polyline: `}</Text>
+                  <TextInput
+                    ref={collectionRef.current[index]}
+                    onChangeText={changeItemName}
+                  >
+                    {polyline.name}
+                  </TextInput>
                 </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  dispatch(
+                    updatePolyline({
+                      _id: polyline._id,
+                      name: textInputValue.current,
+                    }),
+                  );
+                  textInputValue.current = '';
+                }}>
+                <Icon name={'check'} size={25} color="#000" />
               </TouchableOpacity>
               <View
                 style={[commonStyles.listItemControls, styles.listControls]}>
                 <TouchableOpacity
                   onPress={() => {
-                    dispatch(updatePolyline({_id: polyline._id, name: 'test-1'}));
+                    textInputValue.current = polyline.name;
+                    collectionRef.current[index].current.focus();
                   }}>
                   <Icon name={'edit'} size={25} color="#000" />
                 </TouchableOpacity>

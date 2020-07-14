@@ -35,8 +35,8 @@ export const deletePolylines = createAsyncThunk(
 
 export const deletePolyline = createAsyncThunk(
   'polylines/removeOne',
-  async (polylineId) => {
-    const res = await polylineAPI.removeOne(polylineId);
+  async (polyline) => {
+    const res = await polylineAPI.removeOne(polyline.id);
     console.log('Polyline [DELETE ONE] -> ', res);
     return res;
   },
@@ -44,11 +44,9 @@ export const deletePolyline = createAsyncThunk(
 
 export const updatePolyline = createAsyncThunk(
   'polylines/updateOne',
-  async (polylineId) => {
-    console.log('polylineID: ', polylineId);
-    const res = await polylineAPI.updateOne(polylineId._id, polylineId.name);
-    console.log('Polyline [UPDATE ONE] -> ', res);
-    return res;
+  async (polyline) => {
+    await polylineAPI.updateOne(polyline._id, polyline.name);
+    return {id: polyline._id, changes: {name: polyline.name}};
   },
 );
 
