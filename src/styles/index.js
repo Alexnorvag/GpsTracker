@@ -17,9 +17,10 @@ export const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 20,
     backgroundColor: '#FFF',
-    paddingHorizontal: 10,
+    paddingHorizontal: 11,
   },
   listItemControls: {
     flexDirection: 'column',
+    paddingHorizontal: 7
   },
 });

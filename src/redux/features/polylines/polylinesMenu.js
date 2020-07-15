@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
-  Keyboard,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -15,6 +14,7 @@ import _ from 'lodash';
 import {useSelector, useDispatch} from 'react-redux';
 import {selectAllPolylines, updatePolyline} from './polylinesSlice';
 
+import {timestampToDate, isPlural} from '../../../utils';
 import {commonStyles} from '../../../styles';
 
 const PolylinesMenu = ({toggleSideMenu}) => {
@@ -48,6 +48,19 @@ const PolylinesMenu = ({toggleSideMenu}) => {
 
   changeItemName = (text) => setTextItemValue(text);
 
+  inputBlurHandler = (currentItemId, currItemName) => {
+    if (!_.isEmpty(selectedItemId) && textItemValue !== currItemName) {
+      dispatch(
+        updatePolyline({
+          _id: currentItemId,
+          name: textItemValue,
+        }),
+      );
+    }
+    setTextItemValue('');
+    setSelectedItemId('');
+  };
+
   useEffect(() => setIsAllSelected(isAllItemsSelected()), [
     polylines,
     selectedList,
@@ -61,7 +74,7 @@ const PolylinesMenu = ({toggleSideMenu}) => {
     <View style={styles.menuContainer}>
       <View style={styles.menuControlsContainer}>
         <TouchableOpacity
-          style={[styles.selectAllContainer, styles.menuControls]}
+          style={[styles.menuControls]}
           onPress={changeAllItemsSelecting}>
           <CheckBox
             lineWidth={1}
@@ -99,57 +112,36 @@ const PolylinesMenu = ({toggleSideMenu}) => {
               />
               <TouchableOpacity
                 key={polyline._id}
-                style={[commonStyles.listItemContent, styles.listButton]}
+                style={[commonStyles.listItemContent, styles.listItemContainer]}
                 onPress={toggleSideMenu}>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                  }}>
-                  <Text>{`Polyline: `}</Text>
-                  <TextInput
-                    ref={collectionRef.current[index]}
-                    onFocus={() => {
-                      setSelectedItemId(polyline._id);
-                      setTextItemValue(polyline.name);
-                    }}
-                    onBlur={() => {
-                      if (
-                        !_.isEmpty(selectedItemId) &&
-                        textItemValue !== polyline.name
-                      ) {
-                        console.log('textItemValue: ', textItemValue);
-                        dispatch(
-                          updatePolyline({
-                            _id: polyline._id,
-                            name: textItemValue,
-                          }),
-                        );
-                      }
-                      setTextItemValue('');
-                      setSelectedItemId('');
-                    }}
-                    onChangeText={changeItemName}>
-                    {polyline.name}
-                  </TextInput>
+                <TextInput
+                  style={styles.itemInput}
+                  ref={collectionRef.current[index]}
+                  onFocus={() => {
+                    setSelectedItemId(polyline._id);
+                    setTextItemValue(polyline.name);
+                  }}
+                  onBlur={() => inputBlurHandler(polyline._id, polyline.name)}
+                  onChangeText={changeItemName}>
+                  {polyline.name}
+                </TextInput>
+                <View style={styles.itemDescriptionContainer}>
+                  <Text style={styles.itemDescription}>{`${
+                    polyline.points?.length || 0
+                  } location${
+                    isPlural(polyline.points?.length || 0) ? 's' : ''
+                  }`}</Text>
+                  <Text style={styles.itemDescription}>{`${timestampToDate(
+                    polyline.createdAt,
+                  )} - ${timestampToDate(polyline.updatedAt)}`}</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  // if (textItemValue === polyline.name) {
-                  //   console.log('textItemValue: ', textItemValue);
-                  //   setTextItemValue('')
-                  //   // dispatch(
-                  //     //   updatePolyline({
-                  //       //     _id: polyline._id,
-                  //       //     name: textItemValue,
-                  //       //   }),
-                  //       // );
-                  //     }
                   if (_.isEmpty(textItemValue) && _.isEmpty(selectedItemId)) {
+                    // REDO to toggleAndBuildPath
                     toggleSideMenu();
                   }
-                  // collectionRef.current[index].current.blur();
                 }}>
                 <Icon
                   name={
@@ -203,11 +195,6 @@ const styles = StyleSheet.create({
   menuControlsLabels: {
     paddingHorizontal: 5,
   },
-  selectAllContainer: {
-    // paddingVertical: 7,
-    // flexDirection: 'row',
-    // alignItems: 'center',
-  },
   deleteItemsContol: {
     borderColor: '#FFF',
     backgroundColor: '#FF0033',
@@ -215,11 +202,20 @@ const styles = StyleSheet.create({
   deleteItemsLabel: {
     color: '#FFF',
   },
-  listButton: {
-    // borderRadius: 0,
+  listItemContainer: {
+    flex: 1,
+    flexDirection: 'column',
   },
-  listControls: {
-    // borderRadius: 0,
+  itemInput: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  itemDescriptionContainer: {
+    flexDirection: 'column',
+  },
+  itemDescription: {
+    color: '#383838',
+    paddingTop: 4,
   },
 });
 
