@@ -33,12 +33,21 @@ export const deletePolylines = createAsyncThunk(
   },
 );
 
-export const deletePolyline = createAsyncThunk(
+export const deleteOnePolyline = createAsyncThunk(
   'polylines/removeOne',
   async (polyline) => {
     const res = await polylineAPI.removeOne(polyline.id);
     console.log('Polyline [DELETE ONE] -> ', res);
     return res;
+  },
+);
+
+export const deleteManyPolylines = createAsyncThunk(
+  'polylines/removeMany',
+  async (polylinesIds) => {
+    const res = await polylineAPI.removeMany(polylinesIds);
+    console.log('Polyline [DELETE MANY] -> ', res);
+    return polylinesIds;
   },
 );
 
@@ -76,8 +85,11 @@ export const slice = createSlice({
     builder.addCase(createPolyline.fulfilled, (state, action) => {
       polylinesAdapter.addOne(state, action.payload);
     });
-    builder.addCase(deletePolyline.fulfilled, (state, action) => {
+    builder.addCase(deleteOnePolyline.fulfilled, (state, action) => {
       polylinesAdapter.removeOne(state, action.payload);
+    });
+    builder.addCase(deleteManyPolylines.fulfilled, (state, action) => {
+      polylinesAdapter.removeMany(state, action.payload);
     });
     builder.addCase(updatePolyline.fulfilled, (state, action) => {
       polylinesAdapter.updateOne(state, action.payload);

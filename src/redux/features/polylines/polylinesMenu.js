@@ -12,7 +12,11 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
 
 import {useSelector, useDispatch} from 'react-redux';
-import {selectAllPolylines, updatePolyline} from './polylinesSlice';
+import {
+  selectAllPolylines,
+  updatePolyline,
+  deleteManyPolylines,
+} from './polylinesSlice';
 
 import {timestampToDate, isPlural} from '../../../utils';
 import {commonStyles} from '../../../styles';
@@ -91,7 +95,13 @@ const PolylinesMenu = ({toggleSideMenu}) => {
           <Text style={[styles.menuControlsLabels]}>Share</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.menuControls, styles.deleteItemsContol]}>
+          style={[styles.menuControls, styles.deleteItemsContol]}
+          onPress={() => {
+            dispatch(deleteManyPolylines(selectedList));
+            selectedList.map((item) =>
+              console.log('id to delete item: ', item),
+            );
+          }}>
           <Icon name={'delete'} size={25} color="#FFF" />
           <Text style={[styles.menuControlsLabels, styles.deleteItemsLabel]}>
             Delete

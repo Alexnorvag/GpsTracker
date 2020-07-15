@@ -22,6 +22,16 @@ export const polylineAPI = {
       console.log(`😲 polylines deleting failed: ${e}`);
     }
   },
+  removeMany: async (polylinesIds) => {
+    try {
+      return await dbPolyline.removeAsync(
+        {_id: {$in: polylinesIds}},
+        {multi: true},
+      );
+    } catch (error) {
+      console.log(`😲 polylines deleting failed: ${e}`);
+    }
+  },
   removeOne: async (polylineId) => {
     try {
       return await dbPolyline.removeAsync({_id: polylineId});
