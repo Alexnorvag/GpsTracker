@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -19,9 +20,10 @@ import {commonStyles} from '../../../styles';
 const PolylinesMenu = ({toggleSideMenu}) => {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedList, setSelectedList] = useState([]);
+  const [selectedItemId, setSelectedItemId] = useState('');
+  const [textItemValue, setTextItemValue] = useState('');
   const polylines = useSelector(selectAllPolylines);
   const collectionRef = useRef(polylines.map(() => createRef()));
-  const textInputValue = useRef('');
 
   const dispatch = useDispatch();
 
@@ -44,10 +46,7 @@ const PolylinesMenu = ({toggleSideMenu}) => {
 
   isItemIncludes = (itemId) => selectedList.includes(itemId);
 
-  changeItemName = (text) => {
-    console.log('TEXT: ', text);
-    textInputValue.current = text;
-  };
+  changeItemName = (text) => setTextItemValue(text);
 
   useEffect(() => setIsAllSelected(isAllItemsSelected()), [
     polylines,
@@ -110,29 +109,64 @@ const PolylinesMenu = ({toggleSideMenu}) => {
                   <Text>{`Polyline: `}</Text>
                   <TextInput
                     ref={collectionRef.current[index]}
-                    onChangeText={changeItemName}
-                  >
+                    onFocus={() => {
+                      setSelectedItemId(polyline._id);
+                      setTextItemValue(polyline.name);
+                    }}
+                    onBlur={() => {
+                      if (
+                        !_.isEmpty(selectedItemId) &&
+                        textItemValue !== polyline.name
+                      ) {
+                        console.log('textItemValue: ', textItemValue);
+                        dispatch(
+                          updatePolyline({
+                            _id: polyline._id,
+                            name: textItemValue,
+                          }),
+                        );
+                      }
+                      setTextItemValue('');
+                      setSelectedItemId('');
+                    }}
+                    onChangeText={changeItemName}>
                     {polyline.name}
                   </TextInput>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  dispatch(
-                    updatePolyline({
-                      _id: polyline._id,
-                      name: textInputValue.current,
-                    }),
-                  );
-                  textInputValue.current = '';
+                  // if (textItemValue === polyline.name) {
+                  //   console.log('textItemValue: ', textItemValue);
+                  //   setTextItemValue('')
+                  //   // dispatch(
+                  //     //   updatePolyline({
+                  //       //     _id: polyline._id,
+                  //       //     name: textItemValue,
+                  //       //   }),
+                  //       // );
+                  //     }
+                  if (_.isEmpty(textItemValue) && _.isEmpty(selectedItemId)) {
+                    toggleSideMenu();
+                  }
+                  // collectionRef.current[index].current.blur();
                 }}>
-                <Icon name={'check'} size={25} color="#000" />
+                <Icon
+                  name={
+                    selectedItemId === polyline._id
+                      ? textItemValue === polyline.name
+                        ? 'closecircleo'
+                        : 'checkcircleo'
+                      : 'rightcircleo'
+                  }
+                  size={25}
+                  color="#000"
+                />
               </TouchableOpacity>
               <View
                 style={[commonStyles.listItemControls, styles.listControls]}>
                 <TouchableOpacity
                   onPress={() => {
-                    textInputValue.current = polyline.name;
                     collectionRef.current[index].current.focus();
                   }}>
                   <Icon name={'edit'} size={25} color="#000" />
