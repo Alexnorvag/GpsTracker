@@ -75,7 +75,7 @@ export const slice = createSlice({
     updatePolyline: polylinesAdapter.updateOne,
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchPolylines.pending, (state, action) => {
+    builder.addCase(fetchPolylines.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(fetchPolylines.fulfilled, (state, action) => {
@@ -102,6 +102,7 @@ export default reducer;
 
 // export const {addPolyline, removePolyline, } = slice.actions;
 
-export const {selectAll: selectAllPolylines} = polylinesAdapter.getSelectors(
-  (state) => state.polylines,
-);
+export const {
+  selectAll: selectAllPolylines,
+  selectById: selectPolylineById,
+} = polylinesAdapter.getSelectors((state) => state.polylines);

@@ -13,12 +13,18 @@ import Map from '../../../components/map/map';
 const window = Dimensions.get('window');
 
 const PolylinesManager = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPolylineId, setSelectedPolylineId] = useState('');
 
   const dispatch = useDispatch();
 
   const toggleSideMenu = () => setIsOpen((state) => !state);
   const updateSideMenuState = (isOpen) => setIsOpen(isOpen);
+
+  buildPolylineOnMap = (polylineId) => {
+    toggleSideMenu();
+    setSelectedPolylineId(polylineId);
+  };
 
   useEffect(() => {
     // dispatch(deletePolylines());
@@ -31,14 +37,14 @@ const PolylinesManager = () => {
     <SideMenu
       menu={
         <View style={styles.menu}>
-          <PolylinesMenu toggleSideMenu={toggleSideMenu} />
+          <PolylinesMenu buildPolyline={buildPolylineOnMap} />
         </View>
       }
       isOpen={isOpen}
       openMenuOffset={window.width - 40}
       onChange={(isOpen) => updateSideMenuState(isOpen)}>
       <View style={styles.container}>
-        <Map />
+        <Map polylineIdToBuild={selectedPolylineId} />
       </View>
       <TouchableOpacity onPress={toggleSideMenu} style={styles.openMenuButton}>
         <Icon

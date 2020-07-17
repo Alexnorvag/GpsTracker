@@ -1,13 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {View, StyleSheet, Dimensions} from 'react-native';
+import _ from 'lodash';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 
 import {useSelector, useDispatch} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
-import {
-  fetchPolylines,
-  deletePolylines,
-} from '../../redux/features/polylines/polylinesSlice';
+import {selectPolylineById} from '../../redux/features/polylines/polylinesSlice';
 
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
@@ -27,21 +25,28 @@ MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
 
-const Map = () => {
+const Map = ({polylineIdToBuild}) => {
   const [mapLoading, setMapLoading] = useState(true);
   const [followOptions, setFollowOptions] = useState({
     followUserMode: 'normal',
     followUserLocation: true,
   });
+  const [centerCameraCoords, setCenterCameraCoords] = useState();
   const [bleModalVisible, setBleModalVisible] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
+  const [polylineId, setPolylineId] = useState(polylineIdToBuild);
   const coords = useSelector(selectAllCoords);
   const pointsCoords = useSelector((state) => state.coords.points);
   const polylinesLoading = useSelector((state) => state.polylines.loading);
+  const polylineToBuild = useSelector(
+    (state) => selectPolylineById(state, polylineId),
+    // selectPolylineById(state, polylineIdToBuild),
+  );
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const onUserLocationUpdate = (location) => {
     if (location) {
@@ -83,12 +88,64 @@ const Map = () => {
 
   const changeModalState = () => setBleModalVisible((v) => !v);
 
+  // useEffect(() => {
+  //   console.log('polylineToBuild: ', polylineToBuild?.lines);
+  //   // console.log('cameraRef: ', mapRef.current)
+  //   if (polylineToBuild && !_.isEmpty(polylineToBuild.lines)) {
+  //     // setFollowOptions({followUserMode: null, followUserLocation: false});
+  //     setCenterCameraCoords([
+  //       polylineToBuild.lines[0].lng,
+  //       polylineToBuild.lines[0].lat,
+  //     ]);
+  //     // console.log('flyyyyy to: ', [
+  //     //   polylineToBuild.lines[0].lng,
+  //     //   polylineToBuild.lines[0].lat,
+  //     // ]);
+  //     // cameraRef.current.moveTo(
+  //     //   [polylineToBuild.lines[0].lng, polylineToBuild.lines[0].lat],
+  //     //   200,
+  //     // );
+  //   }
+  // }, [polylineToBuild]);
+
+  // useEffect(() => {
+  //   if (!mapLoading) {
+  //     setCenterCameraCoords(Object.values(getCurrentLocation()));
+  //   }
+  // }, [mapLoading]);
+
+  // useEffect(() => {
+  //   console.log('followOptions changed: ', followOptions);
+  //   if (isViewMode) {
+  //     console.log('think now is better time to fly');
+  //     // setFollowOptions({followUserMode: null, followUserLocation: false});
+  //     // setCenterCameraCoords([
+  //     //   polylineToBuild.lines[0].lng,
+  //     //   polylineToBuild.lines[0].lat,
+  //     // ]);
+  //     cameraRef.current.moveTo(
+  //       [polylineToBuild.lines[0].lng, polylineToBuild.lines[0].lat],
+  //       200,
+  //     );
+  //   }
+  // }, [isViewMode, polylineToBuild]);
+
+  console.log('polylineIdToBuild updating: ', polylineId);
+
+  useEffect(() => {
+    console.log('Polyline ID UPDATING: ', polylineIdToBuild);
+    // console.log('polylineId: ', polylineId);
+    setPolylineId(polylineIdToBuild);
+  }, [polylineIdToBuild]);
+
+  useEffect(() => {
+    if (polylineToBuild && !_.isEmpty(polylineToBuild.lines)) {
+      setIsViewMode(true);
+    }
+  }, [polylineToBuild, isViewMode]);
+
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(true);
-
-    // dispatch(deletePolylines());
-    // Get all polylines from db
-    // dispatch(fetchPolylines());
   }, []);
 
   return (
@@ -101,20 +158,38 @@ const Map = () => {
         styleURL={'mapbox://styles/alexnorvag/ck9efq0oz2d0x1ioftrtazzyz'}
         style={styles.map}
         zoomEnabled={true}
-        onDidFinishRenderingMapFully={() => setMapLoading(false)}>
+        onDidFinishRenderingMapFully={() => setMapLoading(false)}
+        onRegionWillChange={() => {
+          setPolylineId('');
+        }}>
         <MapboxGL.Camera
           ref={cameraRef}
-          followUserMode={followOptions.followUserMode}
-          followUserLocation={followOptions.followUserLocation}
-          onUserTrackingModeChange={(e) => {
-            const {followUserMode, followUserLocation} = e.nativeEvent.payload;
-            if (!followUserMode) {
-              setFollowOptions({
-                followUserMode,
-                followUserLocation,
-              });
-            }
-          }}
+          // zoomLevel={14}
+          // centerCoordinate={() => {
+          //   console.log('NY SUKA KAK TbI ZAEBAL: ', followOptions.followUserLocation)
+          //   return followOptions.followUserLocation ? [] : centerCameraCoords
+          // }
+          // }
+          // followUserMode={followOptions.followUserMode}
+          // followUserLocation={followOptions.followUserLocation}
+          // onUserTrackingModeChange={(e) => {
+          //   const {followUserMode, followUserLocation} = e.nativeEvent.payload;
+          //   console.log('followUserMode: ', followUserMode);
+          //   console.log('followUserLocation: ', followUserLocation);
+          //   if (!followUserMode) {
+          //     setFollowOptions({
+          //       followUserMode,
+          //       followUserLocation,
+          //     });
+          //   }
+          //   //  else {
+          //   //   setCenterCameraCoords([]);
+          //   //   setFollowOptions({
+          //   //     followUserMode,
+          //   //     followUserLocation,
+          //   //   });
+          //   // }
+          // }}
         />
         <MapboxGL.UserLocation
           visible={true}
@@ -122,10 +197,10 @@ const Map = () => {
           onUpdate={onUserLocationUpdate}
         />
 
-        {coords.length !== 0 && (
+        {polylineToBuild && !_.isEmpty(polylineToBuild.lines) && (
           <MapboxGL.ShapeSource
             id="polyLines"
-            shape={createPolylineShapeSource(coords)}>
+            shape={createPolylineShapeSource(polylineToBuild.lines)}>
             <MapboxGL.LineLayer
               id="line-layer"
               sourceLayerID="polyLines"
@@ -133,10 +208,10 @@ const Map = () => {
             />
           </MapboxGL.ShapeSource>
         )}
-        {pointsCoords.length !== 0 && (
+        {polylineToBuild && !_.isEmpty(polylineToBuild.points) && (
           <MapboxGL.ShapeSource
             id="polyPoints"
-            shape={createPointsShapeSource(pointsCoords)}>
+            shape={createPointsShapeSource(polylineToBuild.points)}>
             <MapboxGL.CircleLayer
               id="point-layer"
               sourceLayerID="polyPoints"
@@ -146,19 +221,19 @@ const Map = () => {
         )}
       </MapboxGL.MapView>
 
-      {/* <PolylinesManager /> */}
-
       {bleModalVisible && (
         <BluetoothManager
           modalVisible={bleModalVisible}
           changeModalState={changeModalState}
         />
       )}
-      <BottomToolbar
-        styles={[styles.toolbarContainer]}
-        currentLocation={getCurrentLocation}
-        changeModalState={changeModalState}
-      />
+      {!isViewMode && (
+        <BottomToolbar
+          styles={[styles.toolbarContainer]}
+          currentLocation={getCurrentLocation}
+          changeModalState={changeModalState}
+        />
+      )}
       <MapControls
         style={styles.mapControlsContainer}
         buttonsProps={{

@@ -21,7 +21,7 @@ import {
 import {timestampToDate, isPlural} from '../../../utils';
 import {commonStyles} from '../../../styles';
 
-const PolylinesMenu = ({toggleSideMenu}) => {
+const PolylinesMenu = ({buildPolyline}) => {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedList, setSelectedList] = useState([]);
   const [selectedItemId, setSelectedItemId] = useState('');
@@ -123,7 +123,7 @@ const PolylinesMenu = ({toggleSideMenu}) => {
               <TouchableOpacity
                 key={polyline._id}
                 style={[commonStyles.listItemContent, styles.listItemContainer]}
-                onPress={toggleSideMenu}>
+                onPress={() => buildPolyline(polyline._id)}>
                 <TextInput
                   style={styles.itemInput}
                   ref={collectionRef.current[index]}
@@ -149,8 +149,7 @@ const PolylinesMenu = ({toggleSideMenu}) => {
               <TouchableOpacity
                 onPress={() => {
                   if (_.isEmpty(textItemValue) && _.isEmpty(selectedItemId)) {
-                    // REDO to toggleAndBuildPath
-                    toggleSideMenu();
+                    buildPolyline(polyline._id);
                   }
                 }}>
                 <Icon
