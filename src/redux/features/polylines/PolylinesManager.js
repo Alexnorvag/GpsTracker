@@ -27,8 +27,6 @@ const PolylinesManager = () => {
   };
 
   useEffect(() => {
-    // dispatch(deletePolylines());
-    // Get all polylines from db
     dispatch(fetchPolylines());
   }, []);
 
@@ -44,7 +42,10 @@ const PolylinesManager = () => {
       openMenuOffset={window.width - 40}
       onChange={(isOpen) => updateSideMenuState(isOpen)}>
       <View style={styles.container}>
-        <Map polylineIdToBuild={selectedPolylineId} />
+        <Map
+          polylineIdToBuild={selectedPolylineId}
+          clearPolylineId={() => setSelectedPolylineId('')}
+        />
       </View>
       <TouchableOpacity onPress={toggleSideMenu} style={styles.openMenuButton}>
         <Icon

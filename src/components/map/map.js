@@ -25,7 +25,7 @@ MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
 
-const Map = ({polylineIdToBuild}) => {
+const Map = ({polylineIdToBuild, clearPolylineId}) => {
   const [mapLoading, setMapLoading] = useState(true);
   const [followOptions, setFollowOptions] = useState({
     followUserMode: 'normal',
@@ -130,12 +130,12 @@ const Map = ({polylineIdToBuild}) => {
   //   }
   // }, [isViewMode, polylineToBuild]);
 
-  console.log('polylineIdToBuild updating: ', polylineId);
+  // console.log('polylineIdToBuild updating: ', polylineIdToBuild);
 
   useEffect(() => {
     console.log('Polyline ID UPDATING: ', polylineIdToBuild);
     // console.log('polylineId: ', polylineId);
-    setPolylineId(polylineIdToBuild);
+    // setPolylineId(polylineIdToBuild);
   }, [polylineIdToBuild]);
 
   useEffect(() => {
@@ -160,7 +160,8 @@ const Map = ({polylineIdToBuild}) => {
         zoomEnabled={true}
         onDidFinishRenderingMapFully={() => setMapLoading(false)}
         onRegionWillChange={() => {
-          setPolylineId('');
+          clearPolylineId();
+          // setPolylineId('');
         }}>
         <MapboxGL.Camera
           ref={cameraRef}
