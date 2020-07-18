@@ -25,7 +25,7 @@ MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
 
-const Map = ({polylineIdToBuild, clearPolylineId}) => {
+const Map = ({polylineToBuild, clearPolylineId}) => {
   const [mapLoading, setMapLoading] = useState(true);
   const [followOptions, setFollowOptions] = useState({
     followUserMode: 'normal',
@@ -34,13 +34,11 @@ const Map = ({polylineIdToBuild, clearPolylineId}) => {
   const [centerCameraCoords, setCenterCameraCoords] = useState();
   const [bleModalVisible, setBleModalVisible] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
-  const [polylineId, setPolylineId] = useState(polylineIdToBuild);
   const coords = useSelector(selectAllCoords);
   const pointsCoords = useSelector((state) => state.coords.points);
   const polylinesLoading = useSelector((state) => state.polylines.loading);
-  const polylineToBuild = useSelector(
-    (state) => selectPolylineById(state, polylineId),
-    // selectPolylineById(state, polylineIdToBuild),
+  const polyline = useSelector((state) =>
+    selectPolylineById(state, polylineToBuild.id),
   );
   const mapRef = useRef();
   const cameraRef = useRef();
@@ -89,24 +87,24 @@ const Map = ({polylineIdToBuild, clearPolylineId}) => {
   const changeModalState = () => setBleModalVisible((v) => !v);
 
   // useEffect(() => {
-  //   console.log('polylineToBuild: ', polylineToBuild?.lines);
+  //   console.log('polyline: ', polyline?.lines);
   //   // console.log('cameraRef: ', mapRef.current)
-  //   if (polylineToBuild && !_.isEmpty(polylineToBuild.lines)) {
+  //   if (polyline && !_.isEmpty(polyline.lines)) {
   //     // setFollowOptions({followUserMode: null, followUserLocation: false});
   //     setCenterCameraCoords([
-  //       polylineToBuild.lines[0].lng,
-  //       polylineToBuild.lines[0].lat,
+  //       polyline.lines[0].lng,
+  //       polyline.lines[0].lat,
   //     ]);
   //     // console.log('flyyyyy to: ', [
-  //     //   polylineToBuild.lines[0].lng,
-  //     //   polylineToBuild.lines[0].lat,
+  //     //   polyline.lines[0].lng,
+  //     //   polyline.lines[0].lat,
   //     // ]);
   //     // cameraRef.current.moveTo(
-  //     //   [polylineToBuild.lines[0].lng, polylineToBuild.lines[0].lat],
+  //     //   [polyline.lines[0].lng, polyline.lines[0].lat],
   //     //   200,
   //     // );
   //   }
-  // }, [polylineToBuild]);
+  // }, [polyline]);
 
   // useEffect(() => {
   //   if (!mapLoading) {
@@ -116,33 +114,49 @@ const Map = ({polylineIdToBuild, clearPolylineId}) => {
 
   // useEffect(() => {
   //   console.log('followOptions changed: ', followOptions);
-  //   if (isViewMode) {
-  //     console.log('think now is better time to fly');
-  //     // setFollowOptions({followUserMode: null, followUserLocation: false});
-  //     // setCenterCameraCoords([
-  //     //   polylineToBuild.lines[0].lng,
-  //     //   polylineToBuild.lines[0].lat,
-  //     // ]);
-  //     cameraRef.current.moveTo(
-  //       [polylineToBuild.lines[0].lng, polylineToBuild.lines[0].lat],
-  //       200,
-  //     );
+  //   if (isViewMode && polyline && !_.isEmpty(polyline.lines)) {
+  //     // console.log('polyline: ', polyline);
+  //     console.log('think now is better time to fly: ', [
+  //       polyline.lines[0].lng,
+  //       polyline.lines[0].lat,
+  //     ]);
+  //     setFollowOptions({followUserMode: null, followUserLocation: false});
+  //     setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
+  //     // cameraRef.current.setCamera({
+  //     //   centerCoordinate: [
+  //     //     polyline.lines[0].lng,
+  //     //     polyline.lines[0].lat,
+  //     //   ]
+  //     // });
+  //     setFollowOptions({followUserMode: 'compass', followUserLocation: false});
+  //     // cameraRef.current.moveTo(
+  //     //   [polyline.lines[0].lng, polyline.lines[0].lat],
+  //     //   200,
+  //     // );
   //   }
-  // }, [isViewMode, polylineToBuild]);
+  // }, [isViewMode, polyline]);
 
-  // console.log('polylineIdToBuild updating: ', polylineIdToBuild);
+  // console.log('polylineToBuild updating: ', polylineToBuild);
 
   useEffect(() => {
-    console.log('Polyline ID UPDATING: ', polylineIdToBuild);
+    // console.log('Polyline UPDATING: ', polylineToBuild);
     // console.log('polylineId: ', polylineId);
-    // setPolylineId(polylineIdToBuild);
-  }, [polylineIdToBuild]);
+    if (isViewMode) {
+      console.log('VIEW MODE: ', followOptions);
+      // setFollowOptions({followUserMode: null, followUserLocation: false});
+      setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
+      setFollowOptions({followUserMode: 'compass', followUserLocation: false});
+    }
+  }, [isViewMode, polylineToBuild]);
 
   useEffect(() => {
-    if (polylineToBuild && !_.isEmpty(polylineToBuild.lines)) {
+    if (polyline && !_.isEmpty(polyline.lines)) {
       setIsViewMode(true);
+      // console.log('VIEW MODE');
+    } else {
+      setIsViewMode(false);
     }
-  }, [polylineToBuild, isViewMode]);
+  }, [polyline]);
 
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(true);
@@ -159,38 +173,33 @@ const Map = ({polylineIdToBuild, clearPolylineId}) => {
         style={styles.map}
         zoomEnabled={true}
         onDidFinishRenderingMapFully={() => setMapLoading(false)}
-        onRegionWillChange={() => {
-          clearPolylineId();
-          // setPolylineId('');
-        }}>
+        // onRegionWillChange={() => {
+        //   // if (polyline && !_.isEmpty(polyline.lines)) {
+        //   //   // clearPolylineId();
+        //   //   setFollowOptions({followUserMode: null, followUserLocation: false});
+        //   // }
+        // }}
+      >
         <MapboxGL.Camera
           ref={cameraRef}
           // zoomLevel={14}
-          // centerCoordinate={() => {
-          //   console.log('NY SUKA KAK TbI ZAEBAL: ', followOptions.followUserLocation)
-          //   return followOptions.followUserLocation ? [] : centerCameraCoords
-          // }
-          // }
-          // followUserMode={followOptions.followUserMode}
-          // followUserLocation={followOptions.followUserLocation}
-          // onUserTrackingModeChange={(e) => {
-          //   const {followUserMode, followUserLocation} = e.nativeEvent.payload;
-          //   console.log('followUserMode: ', followUserMode);
-          //   console.log('followUserLocation: ', followUserLocation);
-          //   if (!followUserMode) {
-          //     setFollowOptions({
-          //       followUserMode,
-          //       followUserLocation,
-          //     });
-          //   }
-          //   //  else {
-          //   //   setCenterCameraCoords([]);
-          //   //   setFollowOptions({
-          //   //     followUserMode,
-          //   //     followUserLocation,
-          //   //   });
-          //   // }
-          // }}
+          centerCoordinate={
+            followOptions.followUserLocation ? [] : centerCameraCoords
+          }
+          followUserMode={followOptions.followUserMode}
+          followUserLocation={followOptions.followUserLocation}
+          onUserTrackingModeChange={(e) => {
+            const {followUserMode, followUserLocation} = e.nativeEvent.payload;
+            // console.log('followUserMode: ', followUserMode);
+            // console.log('followUserLocation: ', followUserLocation);
+            // if (!followUserLocation) {
+              // if (!followUserMode) {
+              setFollowOptions({
+                followUserMode,
+                followUserLocation,
+              });
+            // }
+          }}
         />
         <MapboxGL.UserLocation
           visible={true}
@@ -198,10 +207,10 @@ const Map = ({polylineIdToBuild, clearPolylineId}) => {
           onUpdate={onUserLocationUpdate}
         />
 
-        {polylineToBuild && !_.isEmpty(polylineToBuild.lines) && (
+        {polyline && !_.isEmpty(polyline.lines) && (
           <MapboxGL.ShapeSource
             id="polyLines"
-            shape={createPolylineShapeSource(polylineToBuild.lines)}>
+            shape={createPolylineShapeSource(polyline.lines)}>
             <MapboxGL.LineLayer
               id="line-layer"
               sourceLayerID="polyLines"
@@ -209,10 +218,10 @@ const Map = ({polylineIdToBuild, clearPolylineId}) => {
             />
           </MapboxGL.ShapeSource>
         )}
-        {polylineToBuild && !_.isEmpty(polylineToBuild.points) && (
+        {polyline && !_.isEmpty(polyline.points) && (
           <MapboxGL.ShapeSource
             id="polyPoints"
-            shape={createPointsShapeSource(polylineToBuild.points)}>
+            shape={createPointsShapeSource(polyline.points)}>
             <MapboxGL.CircleLayer
               id="point-layer"
               sourceLayerID="polyPoints"

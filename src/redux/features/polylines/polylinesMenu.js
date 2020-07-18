@@ -70,9 +70,9 @@ const PolylinesMenu = ({buildPolyline}) => {
     selectedList,
   ]);
 
-  useEffect(() => {
-    console.log('polylines: ', polylines);
-  }, [polylines]);
+  // useEffect(() => {
+  //   console.log('polylines: ', polylines);
+  // }, [polylines]);
 
   return (
     <View style={styles.menuContainer}>

@@ -14,7 +14,10 @@ const window = Dimensions.get('window');
 
 const PolylinesManager = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedPolylineId, setSelectedPolylineId] = useState('');
+  const [selectedPolylineId, setSelectedPolylineId] = useState({
+    id: '',
+    timestamp: new Date(),
+  });
 
   const dispatch = useDispatch();
 
@@ -23,7 +26,7 @@ const PolylinesManager = () => {
 
   buildPolylineOnMap = (polylineId) => {
     toggleSideMenu();
-    setSelectedPolylineId(polylineId);
+    setSelectedPolylineId({id: polylineId, timestamp: new Date()});
   };
 
   useEffect(() => {
@@ -43,7 +46,7 @@ const PolylinesManager = () => {
       onChange={(isOpen) => updateSideMenuState(isOpen)}>
       <View style={styles.container}>
         <Map
-          polylineIdToBuild={selectedPolylineId}
+          polylineToBuild={selectedPolylineId}
           clearPolylineId={() => setSelectedPolylineId('')}
         />
       </View>
