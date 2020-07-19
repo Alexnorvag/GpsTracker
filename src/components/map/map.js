@@ -190,7 +190,7 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
           followUserLocation={followOptions.followUserLocation}
           onUserTrackingModeChange={(e) => {
             const {followUserMode, followUserLocation} = e.nativeEvent.payload;
-            // console.log('followUserMode: ', followUserMode);
+            console.log('followUserMode: ', followUserMode);
             // console.log('followUserLocation: ', followUserLocation);
             // if (!followUserLocation) {
               // if (!followUserMode) {
