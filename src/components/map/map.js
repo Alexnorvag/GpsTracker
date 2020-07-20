@@ -139,13 +139,21 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
   // console.log('polylineToBuild updating: ', polylineToBuild);
 
   useEffect(() => {
-    // console.log('Polyline UPDATING: ', polylineToBuild);
+    console.log('Polyline UPDATING: ', polylineToBuild);
     // console.log('polylineId: ', polylineId);
     if (isViewMode) {
       console.log('VIEW MODE: ', followOptions);
       // setFollowOptions({followUserMode: null, followUserLocation: false});
       setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
-      setFollowOptions({followUserMode: 'compass', followUserLocation: false});
+      // console.log(
+      //   'test: ',
+      //   followOptions.followUserMode === 'normal' ? 'compass' : 'normal',
+      // );
+      // setFollowOptions(o => ({followUserMode: o.followUserMode === 'compass' || , followUserLocation: false}));
+      setFollowOptions((o) => ({
+        followUserMode: o.followUserMode === 'compass' ? 'normal' : 'compass',
+        followUserLocation: false,
+      }));
     }
   }, [isViewMode, polylineToBuild]);
 
@@ -193,12 +201,12 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
             console.log('followUserMode: ', followUserMode);
             // console.log('followUserLocation: ', followUserLocation);
             // if (!followUserLocation) {
-              // if (!followUserMode) {
+            if (!followUserMode) {
               setFollowOptions({
                 followUserMode,
                 followUserLocation,
               });
-            // }
+            }
           }}
         />
         <MapboxGL.UserLocation
