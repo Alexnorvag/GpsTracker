@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 
 import {useDispatch} from 'react-redux';
 import {fetchPolylines, deletePolylines} from './polylinesSlice';
+
 import PolylinesMenu from './polylinesMenu';
 
 import Map from '../../../components/map/map';
