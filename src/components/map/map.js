@@ -3,7 +3,7 @@ import {View, StyleSheet, Dimensions} from 'react-native';
 import _ from 'lodash';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 
-import {useSelector, useDispatch} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
 import {selectPolylineById} from '../../redux/features/polylines/polylinesSlice';
 
@@ -43,9 +43,7 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
-
-  // const dispatch = useDispatch();
-
+  
   const onUserLocationUpdate = (location) => {
     if (location) {
       const {longitude, latitude} = location.coords;

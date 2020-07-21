@@ -1,14 +1,12 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {StyleSheet} from 'react-native';
+import {Alert, StyleSheet} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import _ from 'lodash';
 import shortid from 'shortid';
 
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {addCoord, addPointCoord} from './coordsSlice';
-import {
-  createPolyline,
-  selectAllPolylines,
-} from '../../features/polylines/polylinesSlice';
+import {createPolyline} from '../../features/polylines/polylinesSlice';
 
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -16,22 +14,21 @@ import {IS_ANDROID} from '../../../utils';
 
 const CoordsControls = ({currentLocation, changeModalState}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
-  // const polylines = useSelector(selectAllPolylines);
 
   const dispatch = useDispatch();
 
   const watchID = useRef(0);
   const coordId = useRef(0);
-  // const polylineId = useRef(0);
-  const polyline = useRef({ lines: [], points: []});
+  const polyline = useRef({lines: [], points: []});
 
-  // const getPolylineId = () => polylineId.current++;
   const getCoordId = () => coordId.current++;
 
   const createNewPolyline = () => {
+    polyline.current.points.unshift(_.head(polyline.current.lines));
+    polyline.current.points.push(_.last(polyline.current.lines));
+
     dispatch(
       createPolyline({
-        // id: getPolylineId(),
         ...polyline.current,
         name: shortid.generate(),
       }),
@@ -42,17 +39,18 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
     polyline.current.points = [];
   };
 
-  // useEffect(() => {
-  //   // if (polylines.length > 0) {
-  //   //   const lastId =
-  //   //     polylines.reduce((prev, current) =>
-  //   //       +current.id > +prev.id ? current : prev,
-  //   //     ).id + 1;
+  const isPolylineValid = (polyline) => polyline.lines.length > 2;
 
-  //   //   polylineId.current = lastId;
-  //   // }
-  //   console.log('polylines: ', polylines);
-  // }, [polylines]);
+  const creatingPolylineHandler = () => {
+    isPolylineValid(polyline.current)
+      ? createNewPolyline()
+      : Alert.alert(
+          'Polyline creating failed 🙁',
+          "Can't create a new polyline. The distance between two points is too small.",
+          [{text: 'OK'}],
+          {cancelable: true},
+        );
+  };
 
   useEffect(() => {
     watchID.current = Geolocation.watchPosition(
@@ -72,9 +70,11 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         enableHighAccuracy: true,
         timeout: 20000,
         maximumAge: 1000,
-        distanceFilter: 15,
+        distanceFilter: 11,
       },
     );
+
+    console.log('Started watching with id: ', watchID.current);
 
     return () =>
       watchID.current !== null && Geolocation.clearWatch(watchID.current);
@@ -86,7 +86,7 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         title="Build"
         iconName="plus"
         IconElement={<Icon name="plus" size={30} color="black" />}
-        onPress={createNewPolyline}
+        onPress={creatingPolylineHandler}
       />
       <BottomToolbar.Action
         title={isBuildingRoute ? 'Pause' : 'Start'}
