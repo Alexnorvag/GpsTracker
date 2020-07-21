@@ -10,8 +10,12 @@ export const slice = createSlice({
   reducers: {
     addCoord: coordsAdapter.addOne,
     removeCoord: coordsAdapter.removeOne,
+    setCoords: coordsAdapter.setAll,
     addPointCoord: (state, action) => {
       state.points = [...state.points, action.payload];
+    },
+    setPoints: (state, action) => {
+      state.points = [...action.payload];
     },
   },
 });
@@ -19,7 +23,13 @@ export const slice = createSlice({
 const reducer = slice.reducer;
 export default reducer;
 
-export const {addCoord, addPointCoord, removeCoord} = slice.actions;
+export const {
+  addCoord,
+  addPointCoord,
+  removeCoord,
+  setCoords,
+  setPoints,
+} = slice.actions;
 
 export const {
   selectById: selectCoordById,

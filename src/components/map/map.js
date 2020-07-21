@@ -43,7 +43,7 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
-  
+
   const onUserLocationUpdate = (location) => {
     if (location) {
       const {longitude, latitude} = location.coords;
@@ -108,6 +108,10 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(true);
   }, []);
+
+  useEffect(() => {
+    console.log('coords: ', coords);
+  }, [coords]);
 
   return (
     <View style={styles.container}>
@@ -177,13 +181,14 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
           changeModalState={changeModalState}
         />
       )}
-      {!isViewMode && (
-        <BottomToolbar
-          styles={[styles.toolbarContainer]}
-          currentLocation={getCurrentLocation}
-          changeModalState={changeModalState}
-        />
-      )}
+
+      <BottomToolbar
+        styles={[styles.toolbarContainer]}
+        isViewMode={isViewMode}
+        currentLocation={getCurrentLocation}
+        changeModalState={changeModalState}
+      />
+
       <MapControls
         style={styles.mapControlsContainer}
         buttonsProps={{
