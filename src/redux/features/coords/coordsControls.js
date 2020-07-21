@@ -16,7 +16,7 @@ import {IS_ANDROID} from '../../../utils';
 
 const CoordsControls = ({currentLocation, changeModalState}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
-  const polylines = useSelector(selectAllPolylines);
+  // const polylines = useSelector(selectAllPolylines);
 
   const dispatch = useDispatch();
 
@@ -42,17 +42,17 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
     polyline.current.points = [];
   };
 
-  useEffect(() => {
-    // if (polylines.length > 0) {
-    //   const lastId =
-    //     polylines.reduce((prev, current) =>
-    //       +current.id > +prev.id ? current : prev,
-    //     ).id + 1;
+  // useEffect(() => {
+  //   // if (polylines.length > 0) {
+  //   //   const lastId =
+  //   //     polylines.reduce((prev, current) =>
+  //   //       +current.id > +prev.id ? current : prev,
+  //   //     ).id + 1;
 
-    //   polylineId.current = lastId;
-    // }
-    console.log('polylines: ', polylines);
-  }, [polylines]);
+  //   //   polylineId.current = lastId;
+  //   // }
+  //   console.log('polylines: ', polylines);
+  // }, [polylines]);
 
   useEffect(() => {
     watchID.current = Geolocation.watchPosition(
@@ -72,7 +72,7 @@ const CoordsControls = ({currentLocation, changeModalState}) => {
         enableHighAccuracy: true,
         timeout: 20000,
         maximumAge: 1000,
-        distanceFilter: 30,
+        distanceFilter: 15,
       },
     );
 

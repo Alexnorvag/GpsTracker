@@ -1,13 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {View, StyleSheet, Dimensions} from 'react-native';
+import _ from 'lodash';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 
 import {useSelector, useDispatch} from 'react-redux';
 import {selectAllCoords} from '../../redux/features/coords/coordsSlice';
-import {
-  fetchPolylines,
-  deletePolylines,
-} from '../../redux/features/polylines/polylinesSlice';
+import {selectPolylineById} from '../../redux/features/polylines/polylinesSlice';
 
 import MapboxGL from '@react-native-mapbox-gl/maps';
 
@@ -27,21 +25,26 @@ MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYWxleG5vcnZhZyIsImEiOiJjam1ia2ZoMmQwbDgxM3BxNHN1bGJrZmtqIn0.ac7-waXEpU58Rf5FGn8JbA',
 );
 
-const Map = () => {
+const Map = ({polylineToBuild, clearPolylineId}) => {
   const [mapLoading, setMapLoading] = useState(true);
   const [followOptions, setFollowOptions] = useState({
     followUserMode: 'normal',
     followUserLocation: true,
   });
+  const [centerCameraCoords, setCenterCameraCoords] = useState();
   const [bleModalVisible, setBleModalVisible] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
   const coords = useSelector(selectAllCoords);
   const pointsCoords = useSelector((state) => state.coords.points);
   const polylinesLoading = useSelector((state) => state.polylines.loading);
+  const polyline = useSelector((state) =>
+    selectPolylineById(state, polylineToBuild.id),
+  );
   const mapRef = useRef();
   const cameraRef = useRef();
   const userLocation = useRef([]);
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const onUserLocationUpdate = (location) => {
     if (location) {
@@ -76,7 +79,10 @@ const Map = () => {
     const currentZoom = await getCurrentZoomLevel();
     const zoom = currentZoom + value;
 
-    setFollowOptions({followUserMode: null, followUserLocation: false});
+    setFollowOptions({
+      followUserMode: null,
+      followUserLocation: false,
+    });
 
     cameraRef.current.zoomTo(zoom, 400);
   };
@@ -84,11 +90,25 @@ const Map = () => {
   const changeModalState = () => setBleModalVisible((v) => !v);
 
   useEffect(() => {
-    MapboxGL.setTelemetryEnabled(true);
+    if (isViewMode) {
+      setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
+      setFollowOptions((o) => ({
+        followUserMode: o.followUserMode === 'compass' ? 'normal' : 'compass',
+        followUserLocation: false,
+      }));
+    }
+  }, [isViewMode, polylineToBuild]);
 
-    // dispatch(deletePolylines());
-    // Get all polylines from db
-    // dispatch(fetchPolylines());
+  useEffect(() => {
+    if (polyline && !_.isEmpty(polyline.lines)) {
+      setIsViewMode(true);
+    } else {
+      setIsViewMode(false);
+    }
+  }, [polyline]);
+
+  useEffect(() => {
+    MapboxGL.setTelemetryEnabled(true);
   }, []);
 
   return (
@@ -104,10 +124,17 @@ const Map = () => {
         onDidFinishRenderingMapFully={() => setMapLoading(false)}>
         <MapboxGL.Camera
           ref={cameraRef}
+          animationMode={'flyTo'}
+          animationDuration={3000}
+          centerCoordinate={
+            followOptions.followUserLocation ? [] : centerCameraCoords
+          }
           followUserMode={followOptions.followUserMode}
           followUserLocation={followOptions.followUserLocation}
           onUserTrackingModeChange={(e) => {
             const {followUserMode, followUserLocation} = e.nativeEvent.payload;
+            // console.log('followUserMode: ', followUserMode);
+            // console.log('followUserLocation: ', followUserLocation);
             if (!followUserMode) {
               setFollowOptions({
                 followUserMode,
@@ -122,10 +149,10 @@ const Map = () => {
           onUpdate={onUserLocationUpdate}
         />
 
-        {coords.length !== 0 && (
+        {polyline && !_.isEmpty(polyline.lines) && (
           <MapboxGL.ShapeSource
             id="polyLines"
-            shape={createPolylineShapeSource(coords)}>
+            shape={createPolylineShapeSource(polyline.lines)}>
             <MapboxGL.LineLayer
               id="line-layer"
               sourceLayerID="polyLines"
@@ -133,10 +160,10 @@ const Map = () => {
             />
           </MapboxGL.ShapeSource>
         )}
-        {pointsCoords.length !== 0 && (
+        {polyline && !_.isEmpty(polyline.points) && (
           <MapboxGL.ShapeSource
             id="polyPoints"
-            shape={createPointsShapeSource(pointsCoords)}>
+            shape={createPointsShapeSource(polyline.points)}>
             <MapboxGL.CircleLayer
               id="point-layer"
               sourceLayerID="polyPoints"
@@ -146,19 +173,19 @@ const Map = () => {
         )}
       </MapboxGL.MapView>
 
-      {/* <PolylinesManager /> */}
-
       {bleModalVisible && (
         <BluetoothManager
           modalVisible={bleModalVisible}
           changeModalState={changeModalState}
         />
       )}
-      <BottomToolbar
-        styles={[styles.toolbarContainer]}
-        currentLocation={getCurrentLocation}
-        changeModalState={changeModalState}
-      />
+      {!isViewMode && (
+        <BottomToolbar
+          styles={[styles.toolbarContainer]}
+          currentLocation={getCurrentLocation}
+          changeModalState={changeModalState}
+        />
+      )}
       <MapControls
         style={styles.mapControlsContainer}
         buttonsProps={{

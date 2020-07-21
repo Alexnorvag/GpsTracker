@@ -1,26 +1,38 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef, createRef} from 'react';
 import {
   View,
   ScrollView,
   Text,
   TouchableOpacity,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import Icon from 'react-native-vector-icons/AntDesign';
 import _ from 'lodash';
 
-import {useSelector} from 'react-redux';
-import {selectAllPolylines} from './polylinesSlice';
+import {useSelector, useDispatch} from 'react-redux';
+import {
+  selectAllPolylines,
+  updatePolyline,
+  deleteManyPolylines,
+} from './polylinesSlice';
 
+import {timestampToDate, isPlural} from '../../../utils';
 import {commonStyles} from '../../../styles';
 
-const PolylinesMenu = () => {
+const PolylinesMenu = ({buildPolyline}) => {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedList, setSelectedList] = useState([]);
+  const [selectedItemId, setSelectedItemId] = useState('');
+  const [textItemValue, setTextItemValue] = useState('');
   const polylines = useSelector(selectAllPolylines);
+  const collectionRef = useRef(polylines.map(() => createRef()));
 
-  isAllItemsSelected = () => polylines.length === selectedList.length;
+  const dispatch = useDispatch();
+
+  isAllItemsSelected = () =>
+    !_.isEmpty(polylines) && polylines.length === selectedList.length;
 
   changeAllItemsSelecting = () => {
     isAllSelected
@@ -38,67 +50,127 @@ const PolylinesMenu = () => {
 
   isItemIncludes = (itemId) => selectedList.includes(itemId);
 
-  console.log('RESULT LIST: ', selectedList);
+  changeItemName = (text) => setTextItemValue(text);
 
-  useEffect(() => {
-    setIsAllSelected(isAllItemsSelected());
-  }, [selectedList]);
+  inputBlurHandler = (currentItemId, currItemName) => {
+    if (!_.isEmpty(selectedItemId) && textItemValue !== currItemName) {
+      dispatch(
+        updatePolyline({
+          _id: currentItemId,
+          name: textItemValue,
+        }),
+      );
+    }
+    setTextItemValue('');
+    setSelectedItemId('');
+  };
 
-  useEffect(() => {
-    console.log('polylines: ', polylines);
-  }, [polylines]);
+  useEffect(() => setIsAllSelected(isAllItemsSelected()), [
+    polylines,
+    selectedList,
+  ]);
+
+  // useEffect(() => {
+  //   console.log('polylines: ', polylines);
+  // }, [polylines]);
 
   return (
     <View style={styles.menuContainer}>
-      <View style={styles.menuControls}>
+      <View style={styles.menuControlsContainer}>
         <TouchableOpacity
-          style={styles.selectAllContainer}
+          style={[styles.menuControls]}
           onPress={changeAllItemsSelecting}>
           <CheckBox
-            boxType={'square'}
             lineWidth={1}
-            disabled={false}
             value={isAllSelected}
-            // value={isAllItemsSelected()}
             onChange={changeAllItemsSelecting}
-            animationDuration={0.35}
+            animationDuration={0}
+            onCheckColor={'#000'}
+            onTintColor={'#000'}
           />
-          <Text>Select All</Text>
+          <Text style={styles.menuControlsLabels}>Select All</Text>
         </TouchableOpacity>
-        <Text>Delete</Text>
-        <Text>Open</Text>
-        <Text>Rename</Text>
+        <TouchableOpacity style={[styles.menuControls]}>
+          <Icon name={'sharealt'} size={25} color="#000" />
+          <Text style={[styles.menuControlsLabels]}>Share</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.menuControls, styles.deleteItemsContol]}
+          onPress={() => {
+            dispatch(deleteManyPolylines(selectedList));
+            selectedList.map((item) =>
+              console.log('id to delete item: ', item),
+            );
+          }}>
+          <Icon name={'delete'} size={25} color="#FFF" />
+          <Text style={[styles.menuControlsLabels, styles.deleteItemsLabel]}>
+            Delete
+          </Text>
+        </TouchableOpacity>
       </View>
       <ScrollView style={[commonStyles.listContainer]}>
-        {polylines.length > 0 &&
-          polylines.map((polyline) => (
+        {!_.isEmpty(polylines) &&
+          polylines.map((polyline, index) => (
             <View key={polyline._id} style={[commonStyles.listItem]}>
-              <View style={styles.cbContainer}>
-                <CheckBox
-                  boxType={'square'}
-                  lineWidth={1}
-                  disabled={false}
-                  value={isItemIncludes(polyline._id)}
-                  onValueChange={() => changeItemSelecting(polyline._id)}
-                  animationDuration={0.35}
-                />
-              </View>
+              <CheckBox
+                lineWidth={1}
+                value={isItemIncludes(polyline._id)}
+                onValueChange={() => changeItemSelecting(polyline._id)}
+                animationDuration={0.27}
+                onCheckColor={'#000'}
+                onTintColor={'#000'}
+              />
               <TouchableOpacity
                 key={polyline._id}
-                style={[commonStyles.listButton, styles.listButton]}>
-                <View
-                  style={{
-                    backgroundColor: 'red',
-                    flex: 1,
-                    flexDirection: 'column',
-                  }}>
-                  <Text>{`Polyline: ${polyline.name}`}</Text>
+                style={[commonStyles.listItemContent, styles.listItemContainer]}
+                onPress={() => buildPolyline(polyline._id)}>
+                <TextInput
+                  style={styles.itemInput}
+                  ref={collectionRef.current[index]}
+                  onFocus={() => {
+                    setSelectedItemId(polyline._id);
+                    setTextItemValue(polyline.name);
+                  }}
+                  onBlur={() => inputBlurHandler(polyline._id, polyline.name)}
+                  onChangeText={changeItemName}>
+                  {polyline.name}
+                </TextInput>
+                <View style={styles.itemDescriptionContainer}>
+                  <Text style={styles.itemDescription}>{`${
+                    polyline.points?.length || 0
+                  } location${
+                    isPlural(polyline.points?.length || 0) ? 's' : ''
+                  }`}</Text>
+                  <Text style={styles.itemDescription}>{`${timestampToDate(
+                    polyline.createdAt,
+                  )} - ${timestampToDate(polyline.updatedAt)}`}</Text>
                 </View>
               </TouchableOpacity>
-              <View style={[commonStyles.listControls, styles.listControls]}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (_.isEmpty(textItemValue) && _.isEmpty(selectedItemId)) {
+                    buildPolyline(polyline._id);
+                  }
+                }}>
+                <Icon
+                  name={
+                    selectedItemId === polyline._id
+                      ? textItemValue === polyline.name
+                        ? 'closecircleo'
+                        : 'checkcircleo'
+                      : 'rightcircleo'
+                  }
+                  size={25}
+                  color="#000"
+                />
+              </TouchableOpacity>
+              <View
+                style={[commonStyles.listItemControls, styles.listControls]}>
                 <TouchableOpacity
-                  onPress={() => console.log('removal id: ', polyline._id)}>
-                  <Icon name={'delete'} size={30} color="#FF0033" />
+                  onPress={() => {
+                    collectionRef.current[index].current.focus();
+                  }}>
+                  <Icon name={'edit'} size={25} color="#000" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -113,22 +185,46 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
   },
-  menuControls: {
+  menuControlsContainer: {
     flexDirection: 'row',
-    // backgroundColor: 'blue',
-  },
-  selectAllContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  cbContainer: {
+    justifyContent: 'space-between',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 7,
     paddingHorizontal: 10,
   },
-  listButton: {
-    // borderRadius: 0,
+  menuControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 25,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    backgroundColor: '#FFF',
   },
-  listControls: {
-    // borderRadius: 0,
+  menuControlsLabels: {
+    paddingHorizontal: 5,
+  },
+  deleteItemsContol: {
+    borderColor: '#FFF',
+    backgroundColor: '#FF0033',
+  },
+  deleteItemsLabel: {
+    color: '#FFF',
+  },
+  listItemContainer: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  itemInput: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  itemDescriptionContainer: {
+    flexDirection: 'column',
+  },
+  itemDescription: {
+    color: '#383838',
+    paddingTop: 4,
   },
 });
 

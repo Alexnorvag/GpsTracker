@@ -1,19 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import SideMenu from 'react-native-side-menu-updated';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 import {useDispatch} from 'react-redux';
-import {
-  fetchPolylines,
-  deletePolylines,
-} from './polylinesSlice';
+import {fetchPolylines, deletePolylines} from './polylinesSlice';
+
 import PolylinesMenu from './polylinesMenu';
 
 import Map from '../../../components/map/map';
@@ -21,16 +14,23 @@ import Map from '../../../components/map/map';
 const window = Dimensions.get('window');
 
 const PolylinesManager = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPolylineId, setSelectedPolylineId] = useState({
+    id: '',
+    timestamp: new Date(),
+  });
 
   const dispatch = useDispatch();
 
   const toggleSideMenu = () => setIsOpen((state) => !state);
   const updateSideMenuState = (isOpen) => setIsOpen(isOpen);
 
+  buildPolylineOnMap = (polylineId) => {
+    toggleSideMenu();
+    setSelectedPolylineId({id: polylineId, timestamp: new Date()});
+  };
+
   useEffect(() => {
-    // dispatch(deletePolylines());
-    // Get all polylines from db
     dispatch(fetchPolylines());
   }, []);
 
@@ -39,14 +39,17 @@ const PolylinesManager = () => {
     <SideMenu
       menu={
         <View style={styles.menu}>
-          <PolylinesMenu />
+          <PolylinesMenu buildPolyline={buildPolylineOnMap} />
         </View>
       }
       isOpen={isOpen}
       openMenuOffset={window.width - 40}
       onChange={(isOpen) => updateSideMenuState(isOpen)}>
       <View style={styles.container}>
-        <Map />
+        <Map
+          polylineToBuild={selectedPolylineId}
+          clearPolylineId={() => setSelectedPolylineId('')}
+        />
       </View>
       <TouchableOpacity onPress={toggleSideMenu} style={styles.openMenuButton}>
         <Icon
@@ -66,10 +69,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     padding: 0,
     margin: 0,
-    // backgroundColor: '#E8E8E8',
-    // padding: 80,
-    // backgroundColor: '#F5F5F5',
-    // borderRightWidth: 1,
   },
   openMenuButton: {
     position: 'absolute',

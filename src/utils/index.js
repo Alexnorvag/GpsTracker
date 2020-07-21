@@ -66,3 +66,32 @@ export const BLUETOOTH_CONFIG = {
     return this.prefixUUID + num + '2' + this.suffixUUID;
   },
 };
+
+export const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+export const timestampToDate = (timestamp) => {
+  const currentDate = new Date(timestamp);
+  const date = currentDate.getDate();
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
+
+  const pad = (n) => (n < 10 ? '0' + n : n);
+  const formatedDate = `${pad(date)} ${MONTH_NAMES[month]} ${year}`;
+
+  return formatedDate;
+};
+
+export const isPlural = (number) => number !== 1;

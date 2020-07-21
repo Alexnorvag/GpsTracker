@@ -33,12 +33,29 @@ export const deletePolylines = createAsyncThunk(
   },
 );
 
-export const deletePolyline = createAsyncThunk(
+export const deleteOnePolyline = createAsyncThunk(
   'polylines/removeOne',
-  async (polylineId) => {
-    const res = await polylineAPI.removeOne(polylineId);
+  async (polyline) => {
+    const res = await polylineAPI.removeOne(polyline.id);
     console.log('Polyline [DELETE ONE] -> ', res);
     return res;
+  },
+);
+
+export const deleteManyPolylines = createAsyncThunk(
+  'polylines/removeMany',
+  async (polylinesIds) => {
+    const res = await polylineAPI.removeMany(polylinesIds);
+    console.log('Polyline [DELETE MANY] -> ', res);
+    return polylinesIds;
+  },
+);
+
+export const updatePolyline = createAsyncThunk(
+  'polylines/updateOne',
+  async (polyline) => {
+    await polylineAPI.updateOne(polyline._id, polyline.name);
+    return {id: polyline._id, changes: {name: polyline.name}};
   },
 );
 
@@ -58,7 +75,7 @@ export const slice = createSlice({
     updatePolyline: polylinesAdapter.updateOne,
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchPolylines.pending, (state, action) => {
+    builder.addCase(fetchPolylines.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(fetchPolylines.fulfilled, (state, action) => {
@@ -68,8 +85,14 @@ export const slice = createSlice({
     builder.addCase(createPolyline.fulfilled, (state, action) => {
       polylinesAdapter.addOne(state, action.payload);
     });
-    builder.addCase(deletePolyline.fulfilled, (state, action) => {
+    builder.addCase(deleteOnePolyline.fulfilled, (state, action) => {
       polylinesAdapter.removeOne(state, action.payload);
+    });
+    builder.addCase(deleteManyPolylines.fulfilled, (state, action) => {
+      polylinesAdapter.removeMany(state, action.payload);
+    });
+    builder.addCase(updatePolyline.fulfilled, (state, action) => {
+      polylinesAdapter.updateOne(state, action.payload);
     });
   },
 });
@@ -79,6 +102,7 @@ export default reducer;
 
 // export const {addPolyline, removePolyline, } = slice.actions;
 
-export const {selectAll: selectAllPolylines} = polylinesAdapter.getSelectors(
-  (state) => state.polylines,
-);
+export const {
+  selectAll: selectAllPolylines,
+  selectById: selectPolylineById,
+} = polylinesAdapter.getSelectors((state) => state.polylines);

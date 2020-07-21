@@ -2,7 +2,7 @@ import {StyleSheet} from 'react-native';
 
 export const commonStyles = StyleSheet.create({
   listContainer: {
-    paddingTop: 20,
+    // paddingTop: 20,
   },
   listItem: {
     flex: 1,
@@ -10,20 +10,17 @@ export const commonStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#CCC',
     alignItems: 'center',
-    // backgroundColor: 'gray',
+    paddingHorizontal: 10,
   },
-  listButton: {
+  listItemContent: {
     flex: 1,
     flexDirection: 'row',
-    // justifyContent: 'center',
-    // alignItems: 'center',
     paddingVertical: 20,
     backgroundColor: '#FFF',
+    paddingHorizontal: 11,
   },
-  listControls: {
+  listItemControls: {
     flexDirection: 'column',
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    paddingLeft: 10,
+    paddingHorizontal: 7
   },
 });
