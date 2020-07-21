@@ -79,77 +79,19 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
     const currentZoom = await getCurrentZoomLevel();
     const zoom = currentZoom + value;
 
-    setFollowOptions({followUserMode: null, followUserLocation: false});
+    setFollowOptions({
+      followUserMode: null,
+      followUserLocation: false,
+    });
 
     cameraRef.current.zoomTo(zoom, 400);
   };
 
   const changeModalState = () => setBleModalVisible((v) => !v);
 
-  // useEffect(() => {
-  //   console.log('polyline: ', polyline?.lines);
-  //   // console.log('cameraRef: ', mapRef.current)
-  //   if (polyline && !_.isEmpty(polyline.lines)) {
-  //     // setFollowOptions({followUserMode: null, followUserLocation: false});
-  //     setCenterCameraCoords([
-  //       polyline.lines[0].lng,
-  //       polyline.lines[0].lat,
-  //     ]);
-  //     // console.log('flyyyyy to: ', [
-  //     //   polyline.lines[0].lng,
-  //     //   polyline.lines[0].lat,
-  //     // ]);
-  //     // cameraRef.current.moveTo(
-  //     //   [polyline.lines[0].lng, polyline.lines[0].lat],
-  //     //   200,
-  //     // );
-  //   }
-  // }, [polyline]);
-
-  // useEffect(() => {
-  //   if (!mapLoading) {
-  //     setCenterCameraCoords(Object.values(getCurrentLocation()));
-  //   }
-  // }, [mapLoading]);
-
-  // useEffect(() => {
-  //   console.log('followOptions changed: ', followOptions);
-  //   if (isViewMode && polyline && !_.isEmpty(polyline.lines)) {
-  //     // console.log('polyline: ', polyline);
-  //     console.log('think now is better time to fly: ', [
-  //       polyline.lines[0].lng,
-  //       polyline.lines[0].lat,
-  //     ]);
-  //     setFollowOptions({followUserMode: null, followUserLocation: false});
-  //     setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
-  //     // cameraRef.current.setCamera({
-  //     //   centerCoordinate: [
-  //     //     polyline.lines[0].lng,
-  //     //     polyline.lines[0].lat,
-  //     //   ]
-  //     // });
-  //     setFollowOptions({followUserMode: 'compass', followUserLocation: false});
-  //     // cameraRef.current.moveTo(
-  //     //   [polyline.lines[0].lng, polyline.lines[0].lat],
-  //     //   200,
-  //     // );
-  //   }
-  // }, [isViewMode, polyline]);
-
-  // console.log('polylineToBuild updating: ', polylineToBuild);
-
   useEffect(() => {
-    console.log('Polyline UPDATING: ', polylineToBuild);
-    // console.log('polylineId: ', polylineId);
     if (isViewMode) {
-      console.log('VIEW MODE: ', followOptions);
-      // setFollowOptions({followUserMode: null, followUserLocation: false});
       setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
-      // console.log(
-      //   'test: ',
-      //   followOptions.followUserMode === 'normal' ? 'compass' : 'normal',
-      // );
-      // setFollowOptions(o => ({followUserMode: o.followUserMode === 'compass' || , followUserLocation: false}));
       setFollowOptions((o) => ({
         followUserMode: o.followUserMode === 'compass' ? 'normal' : 'compass',
         followUserLocation: false,
@@ -160,7 +102,6 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
   useEffect(() => {
     if (polyline && !_.isEmpty(polyline.lines)) {
       setIsViewMode(true);
-      // console.log('VIEW MODE');
     } else {
       setIsViewMode(false);
     }
@@ -180,17 +121,11 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
         styleURL={'mapbox://styles/alexnorvag/ck9efq0oz2d0x1ioftrtazzyz'}
         style={styles.map}
         zoomEnabled={true}
-        onDidFinishRenderingMapFully={() => setMapLoading(false)}
-        // onRegionWillChange={() => {
-        //   // if (polyline && !_.isEmpty(polyline.lines)) {
-        //   //   // clearPolylineId();
-        //   //   setFollowOptions({followUserMode: null, followUserLocation: false});
-        //   // }
-        // }}
-      >
+        onDidFinishRenderingMapFully={() => setMapLoading(false)}>
         <MapboxGL.Camera
           ref={cameraRef}
-          // zoomLevel={14}
+          animationMode={'flyTo'}
+          animationDuration={3000}
           centerCoordinate={
             followOptions.followUserLocation ? [] : centerCameraCoords
           }
@@ -198,9 +133,8 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
           followUserLocation={followOptions.followUserLocation}
           onUserTrackingModeChange={(e) => {
             const {followUserMode, followUserLocation} = e.nativeEvent.payload;
-            console.log('followUserMode: ', followUserMode);
+            // console.log('followUserMode: ', followUserMode);
             // console.log('followUserLocation: ', followUserLocation);
-            // if (!followUserLocation) {
             if (!followUserMode) {
               setFollowOptions({
                 followUserMode,
