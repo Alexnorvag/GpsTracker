@@ -107,16 +107,15 @@ const CoordsControls = ({isViewMode, currentLocation, changeModalState}) => {
         title="Build"
         iconName="check"
         IconElement={
-          <View>
-            <Icon
-              name="check"
-              size={30}
-              color={isBuildingRoute ? '#000' : '#808080'}
-            />
-          </View>
+          <Icon
+            name="check"
+            size={30}
+            color={isBuildingRoute ? '#000' : '#808080'}
+          />
         }
         disabled={!isBuildingRoute}
         onPress={() => {
+          setIsBuildingRoute(false);
           creatingPolylineHandler();
           restorePolyline();
         }}
@@ -133,10 +132,7 @@ const CoordsControls = ({isViewMode, currentLocation, changeModalState}) => {
               <Icon name={'enviromento'} size={60} color="#000" />
             </View>
           }
-          onPress={() => {
-            setIsBuildingRoute(false);
-            createNewPoint();
-          }}
+          onPress={createNewPoint}
         />
       ) : (
         <BottomToolbar.Action
@@ -172,7 +168,7 @@ const styles = StyleSheet.create({
   coverIcon: {
     position: 'absolute',
     left: -20,
-    top: 15
+    top: 15,
   },
 });
 
