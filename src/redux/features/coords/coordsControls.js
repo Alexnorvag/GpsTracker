@@ -12,7 +12,12 @@ import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {IS_ANDROID} from '../../../utils';
 
-const CoordsControls = ({isViewMode, currentLocation, changeModalState}) => {
+const CoordsControls = ({
+  isViewMode,
+  currentLocation,
+  changeModalState,
+  clearPolylineId,
+}) => {
   const [isBuildingRoute, setIsBuildingRoute] = useState(false);
 
   const dispatch = useDispatch();
@@ -101,57 +106,76 @@ const CoordsControls = ({isViewMode, currentLocation, changeModalState}) => {
       isBuildingRoute && watchID.current !== null && stopLocationWatching();
   }, [isBuildingRoute]);
 
-  return (
-    <BottomToolbar wrapperStyle={styles.wrapper}>
-      <BottomToolbar.Action
-        title="Build"
-        iconName="check"
-        IconElement={
-          <Icon
-            name="check"
-            size={30}
-            color={isBuildingRoute ? '#000' : '#808080'}
-          />
-        }
-        disabled={!isBuildingRoute}
-        onPress={() => {
-          setIsBuildingRoute(false);
-          creatingPolylineHandler();
-          restorePolyline();
-        }}
-      />
-      {isBuildingRoute ? (
-        <BottomToolbar.Action
-          title={'Add location'}
-          iconName={'enviromento'}
-          IconElement={
-            <View style={styles.locationIconWrapper}>
-              <View style={styles.coverIcon}>
-                <Icon name={'plus'} size={30} color="#000" />
-              </View>
-              <Icon name={'enviromento'} size={60} color="#000" />
-            </View>
-          }
-          onPress={createNewPoint}
-        />
-      ) : (
-        <BottomToolbar.Action
-          title={'Start'}
-          iconName={'playcircleo'}
-          IconElement={<Icon name={'playcircleo'} size={60} color="#000" />}
-          onPress={() => {
-            setIsBuildingRoute(true);
-          }}
-        />
-      )}
+  useEffect(() => {
+    console.log('Viewing Mode [CONTROLS]: ', isViewMode);
+  }, [isViewMode]);
 
-      <BottomToolbar.Action
-        title="Share"
-        iconName="sharealt"
-        IconElement={<Icon name="sharealt" size={30} color="black" />}
-        onPress={changeModalState}
-      />
-    </BottomToolbar>
+  return (
+    // <BottomToolbar wrapperStyle={styles.wrapper}>
+      <>
+        {isViewMode ? (
+          <BottomToolbar wrapperStyle={styles.wrapper}>
+          <BottomToolbar.Action
+            title="Share"
+            iconName="sharealt"
+            IconElement={<Icon name="sharealt" size={30} color="black" />}
+            onPress={clearPolylineId}
+          />
+          </BottomToolbar>
+        ) : (
+          <BottomToolbar wrapperStyle={styles.wrapper}>
+            <BottomToolbar.Action
+              title="Build"
+              iconName="check"
+              IconElement={
+                <Icon
+                  name="check"
+                  size={30}
+                  color={isBuildingRoute ? '#000' : '#808080'}
+                />
+              }
+              disabled={!isBuildingRoute}
+              onPress={() => {
+                setIsBuildingRoute(false);
+                creatingPolylineHandler();
+              }}
+            />
+            {isBuildingRoute ? (
+              <BottomToolbar.Action
+                title={'Add location'}
+                iconName={'enviromento'}
+                IconElement={
+                  <View style={styles.locationIconWrapper}>
+                    <View style={styles.coverIcon}>
+                      <Icon name={'plus'} size={30} color="#000" />
+                    </View>
+                    <Icon name={'enviromento'} size={60} color="#000" />
+                  </View>
+                }
+                onPress={createNewPoint}
+              />
+            ) : (
+              <BottomToolbar.Action
+                title={'Start'}
+                iconName={'playcircleo'}
+                IconElement={<Icon name={'playcircleo'} size={60} color="#000" />}
+                onPress={() => {
+                  setIsBuildingRoute(true);
+                  restorePolyline();
+                }}
+              />
+            )}
+  
+            <BottomToolbar.Action
+              title="Share"
+              iconName="sharealt"
+              IconElement={<Icon name="sharealt" size={30} color="black" />}
+              onPress={changeModalState}
+            />
+          </BottomToolbar>
+        )}
+      </>
+    // </BottomToolbar>
   );
 };
 

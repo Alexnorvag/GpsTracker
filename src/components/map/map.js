@@ -87,31 +87,34 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
 
   const changeModalState = () => setBleModalVisible((v) => !v);
 
+  // // combine two effect into one
+  // useEffect(() => {
+  //   if (isViewMode && polyline && !_.isEmpty(polyline.lines)) {
+  //     setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
+  //     setFollowOptions((o) => ({
+  //       followUserMode: o.followUserMode === 'compass' ? 'normal' : 'compass',
+  //       followUserLocation: false,
+  //     }));
+  //   }
+  // }, [isViewMode, polylineToBuild]);
+
   useEffect(() => {
-    if (isViewMode) {
+    if (polyline && !_.isEmpty(polyline.lines)) {
+      console.log('polyline: ', polyline);
+      setIsViewMode(true);
       setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
       setFollowOptions((o) => ({
         followUserMode: o.followUserMode === 'compass' ? 'normal' : 'compass',
         followUserLocation: false,
       }));
-    }
-  }, [isViewMode, polylineToBuild]);
-
-  useEffect(() => {
-    if (polyline && !_.isEmpty(polyline.lines)) {
-      setIsViewMode(true);
     } else {
       setIsViewMode(false);
     }
-  }, [polyline]);
+  }, [polyline, polylineToBuild]);
 
   useEffect(() => {
     MapboxGL.setTelemetryEnabled(true);
   }, []);
-
-  useEffect(() => {
-    console.log('coords: ', coords);
-  }, [coords]);
 
   return (
     <View style={styles.container}>
@@ -151,10 +154,14 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
           onUpdate={onUserLocationUpdate}
         />
 
-        {polyline && !_.isEmpty(polyline.lines) && (
+        {(isViewMode
+          ? polyline && !_.isEmpty(polyline.lines)
+          : !_.isEmpty(coords)) && (
           <MapboxGL.ShapeSource
             id="polyLines"
-            shape={createPolylineShapeSource(polyline.lines)}>
+            shape={createPolylineShapeSource(
+              isViewMode ? polyline.lines : coords,
+            )}>
             <MapboxGL.LineLayer
               id="line-layer"
               sourceLayerID="polyLines"
@@ -162,10 +169,14 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
             />
           </MapboxGL.ShapeSource>
         )}
-        {polyline && !_.isEmpty(polyline.points) && (
+        {(isViewMode
+          ? polyline && !_.isEmpty(polyline.points)
+          : !_.isEmpty(pointsCoords)) && (
           <MapboxGL.ShapeSource
             id="polyPoints"
-            shape={createPointsShapeSource(polyline.points)}>
+            shape={createPointsShapeSource(
+              isViewMode ? polyline.points : pointsCoords,
+            )}>
             <MapboxGL.CircleLayer
               id="point-layer"
               sourceLayerID="polyPoints"
@@ -187,6 +198,7 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
         isViewMode={isViewMode}
         currentLocation={getCurrentLocation}
         changeModalState={changeModalState}
+        clearPolylineId={clearPolylineId}
       />
 
       <MapControls
