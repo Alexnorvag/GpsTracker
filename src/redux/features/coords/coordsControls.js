@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {Alert, View, StyleSheet, Text} from 'react-native';
+import {Alert, View, StyleSheet, Dimensions} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import _ from 'lodash';
 import shortid from 'shortid';
@@ -11,6 +11,8 @@ import {createPolyline} from '../../features/polylines/polylinesSlice';
 import BottomToolbar from 'react-native-bottom-toolbar';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {IS_ANDROID} from '../../../utils';
+
+const window = Dimensions.get('window');
 
 const CoordsControls = ({
   isViewMode,
@@ -106,76 +108,82 @@ const CoordsControls = ({
       isBuildingRoute && watchID.current !== null && stopLocationWatching();
   }, [isBuildingRoute]);
 
-  useEffect(() => {
-    console.log('Viewing Mode [CONTROLS]: ', isViewMode);
-  }, [isViewMode]);
+  const renderViewModeToolbar = () => (
+    <BottomToolbar wrapperStyle={[styles.wrapper, styles.viewModeWrapper]}>
+      <BottomToolbar.Action
+        title="Back"
+        iconName="closecircleo"
+        IconElement={<Icon name="closecircleo" size={60} color="black" />}
+        onPress={clearPolylineId}
+      />
+      <BottomToolbar.Action
+        title="Share"
+        iconName="sharealt"
+        IconElement={<Icon name="sharealt" size={30} color="black" />}
+        onPress={changeModalState}
+      />
+    </BottomToolbar>
+  );
+
+  const renderTrackingModeToolbar = () => {
+    return (
+      <BottomToolbar wrapperStyle={styles.wrapper}>
+        <BottomToolbar.Action
+          title="Build"
+          iconName="check"
+          IconElement={
+            <Icon
+              name="check"
+              size={30}
+              color={isBuildingRoute ? '#000' : '#808080'}
+            />
+          }
+          disabled={!isBuildingRoute}
+          onPress={() => {
+            setIsBuildingRoute(false);
+            creatingPolylineHandler();
+          }}
+        />
+        {isBuildingRoute ? (
+          <BottomToolbar.Action
+            title={'Add location'}
+            iconName={'enviromento'}
+            IconElement={
+              <View style={styles.locationIconWrapper}>
+                <View style={styles.coverIcon}>
+                  <Icon name={'plus'} size={30} color="#000" />
+                </View>
+                <Icon name={'enviromento'} size={60} color="#000" />
+              </View>
+            }
+            onPress={createNewPoint}
+          />
+        ) : (
+          <BottomToolbar.Action
+            title={'Start'}
+            iconName={'playcircleo'}
+            IconElement={<Icon name={'playcircleo'} size={60} color="#000" />}
+            onPress={() => {
+              setIsBuildingRoute(true);
+              restorePolyline();
+            }}
+          />
+        )}
+
+        <BottomToolbar.Action
+          title="Share"
+          iconName="sharealt"
+          IconElement={<Icon name="sharealt" size={30} color="black" />}
+          onPress={changeModalState}
+        />
+      </BottomToolbar>
+    );
+  };
 
   return (
-    // <BottomToolbar wrapperStyle={styles.wrapper}>
-      <>
-        {isViewMode ? (
-          <BottomToolbar wrapperStyle={styles.wrapper}>
-          <BottomToolbar.Action
-            title="Share"
-            iconName="sharealt"
-            IconElement={<Icon name="sharealt" size={30} color="black" />}
-            onPress={clearPolylineId}
-          />
-          </BottomToolbar>
-        ) : (
-          <BottomToolbar wrapperStyle={styles.wrapper}>
-            <BottomToolbar.Action
-              title="Build"
-              iconName="check"
-              IconElement={
-                <Icon
-                  name="check"
-                  size={30}
-                  color={isBuildingRoute ? '#000' : '#808080'}
-                />
-              }
-              disabled={!isBuildingRoute}
-              onPress={() => {
-                setIsBuildingRoute(false);
-                creatingPolylineHandler();
-              }}
-            />
-            {isBuildingRoute ? (
-              <BottomToolbar.Action
-                title={'Add location'}
-                iconName={'enviromento'}
-                IconElement={
-                  <View style={styles.locationIconWrapper}>
-                    <View style={styles.coverIcon}>
-                      <Icon name={'plus'} size={30} color="#000" />
-                    </View>
-                    <Icon name={'enviromento'} size={60} color="#000" />
-                  </View>
-                }
-                onPress={createNewPoint}
-              />
-            ) : (
-              <BottomToolbar.Action
-                title={'Start'}
-                iconName={'playcircleo'}
-                IconElement={<Icon name={'playcircleo'} size={60} color="#000" />}
-                onPress={() => {
-                  setIsBuildingRoute(true);
-                  restorePolyline();
-                }}
-              />
-            )}
-  
-            <BottomToolbar.Action
-              title="Share"
-              iconName="sharealt"
-              IconElement={<Icon name="sharealt" size={30} color="black" />}
-              onPress={changeModalState}
-            />
-          </BottomToolbar>
-        )}
-      </>
-    // </BottomToolbar>
+    <>
+      {isViewMode ? renderViewModeToolbar() : renderTrackingModeToolbar()}
+    </>
   );
 };
 
@@ -185,6 +193,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: IS_ANDROID ? 0 : 10,
     paddingHorizontal: 10,
+  },
+  viewModeWrapper: {
+    flexDirection: 'row',
+    // justifyContent: 'space-evenly',
+    paddingLeft: (window.width - 90) / 2,
   },
   locationIconWrapper: {
     flexDirection: 'row',

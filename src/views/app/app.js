@@ -37,7 +37,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <View style={styles.page}>
-      <StatusBar backgroundColor="white" barStyle={'dark-content'} />
+        <StatusBar backgroundColor="white" barStyle={'dark-content'} />
         {IS_ANDROID && !isAndroidPermissionGranted ? (
           isFetchingAndroidPermission ? null : (
             <SafeAreaView

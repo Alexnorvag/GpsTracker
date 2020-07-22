@@ -87,24 +87,15 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
 
   const changeModalState = () => setBleModalVisible((v) => !v);
 
-  // // combine two effect into one
-  // useEffect(() => {
-  //   if (isViewMode && polyline && !_.isEmpty(polyline.lines)) {
-  //     setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
-  //     setFollowOptions((o) => ({
-  //       followUserMode: o.followUserMode === 'compass' ? 'normal' : 'compass',
-  //       followUserLocation: false,
-  //     }));
-  //   }
-  // }, [isViewMode, polylineToBuild]);
-
   useEffect(() => {
     if (polyline && !_.isEmpty(polyline.lines)) {
-      console.log('polyline: ', polyline);
+      const {lng, lat} = polyline.lines[0];
+
       setIsViewMode(true);
-      setCenterCameraCoords([polyline.lines[0].lng, polyline.lines[0].lat]);
-      setFollowOptions((o) => ({
-        followUserMode: o.followUserMode === 'compass' ? 'normal' : 'compass',
+      setCenterCameraCoords([lng, lat]);
+      setFollowOptions((opts) => ({
+        followUserMode:
+          opts.followUserMode === 'compass' ? 'normal' : 'compass',
         followUserLocation: false,
       }));
     } else {
@@ -138,8 +129,7 @@ const Map = ({polylineToBuild, clearPolylineId}) => {
           followUserLocation={followOptions.followUserLocation}
           onUserTrackingModeChange={(e) => {
             const {followUserMode, followUserLocation} = e.nativeEvent.payload;
-            // console.log('followUserMode: ', followUserMode);
-            // console.log('followUserLocation: ', followUserLocation);
+            
             if (!followUserMode) {
               setFollowOptions({
                 followUserMode,

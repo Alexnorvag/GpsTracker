@@ -5,7 +5,7 @@ import SideMenu from 'react-native-side-menu-updated';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 import {useDispatch} from 'react-redux';
-import {fetchPolylines, deletePolylines} from './polylinesSlice';
+import {fetchPolylines} from './polylinesSlice';
 
 import PolylinesMenu from './polylinesMenu';
 
