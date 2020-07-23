@@ -8,6 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {BleManager} from 'react-native-ble-plx';
 import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../utils';
@@ -56,7 +57,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     manager.current.startDeviceScan(null, null, (error, device) => {
       setInfo('Scanning...');
       setIsScanning(true);
-      console.log('serviceUUIDs: ', device)
+      console.log('serviceUUIDs: ', device);
 
       if (device && !isDeviceExist(_devices.current, device)) {
         _devices.current = [..._devices.current, device];
@@ -80,7 +81,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     // stopScanning();
     setInfo(`Connecting to ${deviceName}`);
 
-    console.log('selected device: ', selectedDevice.id)
+    console.log('selected device: ', selectedDevice.id);
 
     manager.current.connectToDevice(selectedDevice.id);
 
@@ -223,8 +224,9 @@ const styles = StyleSheet.create({
   infoWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    top: IS_ANDROID ? 0 : 40,
-    paddingVertical: 100,
+    top: getStatusBarHeight(true),
+    paddingVertical: 10,
+    // backgroundColor: '#f7f',
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: {

@@ -181,9 +181,7 @@ const CoordsControls = ({
   };
 
   return (
-    <>
-      {isViewMode ? renderViewModeToolbar() : renderTrackingModeToolbar()}
-    </>
+    <>{isViewMode ? renderViewModeToolbar() : renderTrackingModeToolbar()}</>
   );
 };
 
@@ -196,7 +194,6 @@ const styles = StyleSheet.create({
   },
   viewModeWrapper: {
     flexDirection: 'row',
-    // justifyContent: 'space-evenly',
     paddingLeft: (window.width - 90) / 2,
   },
   locationIconWrapper: {
