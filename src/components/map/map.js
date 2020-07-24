@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   },
   mapControlsContainer: {
     position: 'absolute',
-    top: (window.height - 138) / 2 - getStatusBarHeight(),
+    top: (window.height - 138) / 2 - getStatusBarHeight(true),
     right: 0,
     flex: 1,
     backgroundColor: '#ffffff',

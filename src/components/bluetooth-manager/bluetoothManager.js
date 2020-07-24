@@ -226,7 +226,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     top: getStatusBarHeight(true),
     paddingVertical: 10,
-    // backgroundColor: '#f7f',
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: {

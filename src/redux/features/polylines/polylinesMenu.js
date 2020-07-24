@@ -27,9 +27,18 @@ const PolylinesMenu = ({buildPolyline}) => {
   const [selectedItemId, setSelectedItemId] = useState('');
   const [textItemValue, setTextItemValue] = useState('');
   const polylines = useSelector(selectAllPolylines);
-  const collectionRef = useRef(polylines.map(() => createRef()));
+  const collectionRef = useRef(
+    polylines.map((item) => {
+      console.log('[REF ITEM]: ', item);
+      return createRef();
+    }),
+  );
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log('collectionRef: ', collectionRef);
+  }, []);
 
   isAllItemsSelected = () =>
     !_.isEmpty(polylines) && polylines.length === selectedList.length;
@@ -168,6 +177,7 @@ const PolylinesMenu = ({buildPolyline}) => {
                 style={[commonStyles.listItemControls, styles.listControls]}>
                 <TouchableOpacity
                   onPress={() => {
+                    console.log('collectionRef: ', collectionRef);
                     collectionRef.current[index].current.focus();
                   }}>
                   <Icon name={'edit'} size={25} color="#000" />

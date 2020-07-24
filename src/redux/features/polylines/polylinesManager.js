@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   openMenuButton: {
     position: 'absolute',
-    top: (window.height - 55) / 2 - getStatusBarHeight(),
+    top: (window.height - 55) / 2 - getStatusBarHeight(true),
     paddingHorizontal: 5,
     paddingVertical: 15,
     borderBottomRightRadius: 12,

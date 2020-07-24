@@ -62,8 +62,7 @@ const App = () => {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    paddingTop: getStatusBarHeight(),
-    // paddingTop: getStatusBarHeight(true), // TODO maybe need to change to this
+    paddingTop: getStatusBarHeight(true),
     flexDirection: 'column',
     backgroundColor: '#FFF',
   },
