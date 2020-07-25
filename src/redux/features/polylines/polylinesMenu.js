@@ -29,16 +29,16 @@ const PolylinesMenu = ({buildPolyline}) => {
   const polylines = useSelector(selectAllPolylines);
   const collectionRef = useRef(
     polylines.map((item) => {
-      console.log('[REF ITEM]: ', item);
+      // console.log('[REF ITEM]: ', item);
       return createRef();
     }),
   );
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    console.log('collectionRef: ', collectionRef);
-  }, []);
+  // useEffect(() => {
+  //   console.log('collectionRef: ', collectionRef);
+  // }, []);
 
   isAllItemsSelected = () =>
     !_.isEmpty(polylines) && polylines.length === selectedList.length;

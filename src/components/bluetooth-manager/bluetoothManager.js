@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -66,7 +67,12 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
       setDevices(_devices.current);
 
       if (error) {
-        setError(error.message);
+        Alert.alert(
+          `Ooops! ${error.message}.`,
+          `Say, "Karisha shines as a Sun." 😎 If doesn't helped just try to turn on your bluetooth. 👨‍🔧`,
+          [{text: 'OK'}],
+          {cancelable: true},
+        );
         return;
       }
     });
