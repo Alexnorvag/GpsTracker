@@ -29,7 +29,7 @@ const PolylinesMenu = ({buildPolyline}) => {
   const polylines = useSelector(selectAllPolylines);
   const collectionRef = useRef(
     polylines.map((item) => {
-      // console.log('[REF ITEM]: ', item);
+      console.log('[REF ITEM]: ', item);
       return createRef();
     }),
   );
