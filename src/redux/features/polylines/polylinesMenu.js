@@ -1,4 +1,10 @@
-import React, {useEffect, useState, useRef, createRef} from 'react';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  createRef,
+  useCallback,
+} from 'react';
 import {
   View,
   ScrollView,
@@ -21,6 +27,27 @@ import {
 import {timestampToDate, isPlural} from '../../../utils';
 import {commonStyles} from '../../../styles';
 
+function useHookWithRefCallback() {
+  const ref = useRef(null);
+  const setRef = useCallback((node) => {
+    console.log('ref: ', ref);
+    console.log('node: ', node);
+    if (ref.current) {
+      // Make sure to cleanup any events/references added to the last instance
+    }
+
+    if (node) {
+      // Check if a node is actually passed. Otherwise node would be null.
+      // You can now do what you need to, addEventListeners, measure, etc.
+    }
+
+    // Save a reference to the node
+    ref.current = node;
+  }, []);
+
+  return [setRef];
+}
+
 const PolylinesMenu = ({buildPolyline}) => {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedList, setSelectedList] = useState([]);
@@ -29,10 +56,11 @@ const PolylinesMenu = ({buildPolyline}) => {
   const polylines = useSelector(selectAllPolylines);
   const collectionRef = useRef(
     polylines.map((item) => {
-      console.log('[REF ITEM]: ', item);
+      // console.log('[REF ITEM]: ', item);
       return createRef();
     }),
   );
+  const [ref] = useHookWithRefCallback();
 
   const dispatch = useDispatch();
 
@@ -79,13 +107,15 @@ const PolylinesMenu = ({buildPolyline}) => {
     selectedList,
   ]);
 
-  // useEffect(() => {
-  //   console.log('polylines: ', polylines);
-  // }, [polylines]);
+  useEffect(() => {
+    console.log('polylines: ', polylines);
+    // console.log('collectionRef: ', collectionRef.current);
+  }, [polylines]);
+  // console.log('collectionRef: ', collectionRef.current);
 
   return (
     <View style={styles.menuContainer}>
-      <View style={styles.menuControlsContainer}>
+      <View style={styles.menuControlsContainer} ref={ref}>
         <TouchableOpacity
           style={[styles.menuControls]}
           onPress={changeAllItemsSelecting}>
