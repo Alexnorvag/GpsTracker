@@ -11,19 +11,20 @@ import {
 } from 'react-native';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 import Icon from 'react-native-vector-icons/AntDesign';
+
 import {BleManager} from 'react-native-ble-plx';
+import base64 from 'react-native-base64';
+
 import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../utils';
 
-const VEHICLE_MAC = 'DA:BB:1D:A0:FA:FD';
-
-const CTLR_SVC = 'B33EBCE4-26F5-8752-FA0A-C0EE68663DA1';
-const CTLR_XTIC = '0000180a-0000-1000-8000-00805f9b34fb';
+const some_test_data = base64.encode('Some string to encode to base64');
 
 const BluetoothManager = ({modalVisible, changeModalState}) => {
   const [info, setInfo] = useState('');
   const [values, setValues] = useState({});
   const [devices, setDevices] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
+  // const [isBleOn, setIsBleOn] = useState(false);
   const _devices = useRef([]);
   const manager = useRef({});
   const stopScanningTimer = useRef(null);
@@ -69,8 +70,9 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
       if (error) {
         Alert.alert(
           `Ooops! ${error.message}.`,
-          `Say, "Karisha shines as a Sun." 😎 If doesn't helped just try to turn on your bluetooth. 👨‍🔧`,
-          [{text: 'OK'}],
+          `Try to turn on your bluetooth.`,
+          // `Say, "Karisha shines as a Sun." 😎 If doesn't helped just try to turn on your bluetooth.`,
+          [{text: 'OK 👨‍🔧'}],
           {cancelable: true},
         );
         return;
@@ -80,7 +82,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     stopScanningTimer.current = setTimeout(stopScanning, 20000);
   };
 
-  const connectToDevice = (selectedDevice) => {
+  const connectToDevice = async (selectedDevice) => {
     const deviceName =
       selectedDevice.localname || selectedDevice.name || selectedDevice.id;
     // console.log('($*)!"(*)($!)"($: ', selectedDevice.serviceUUIDs)
@@ -89,7 +91,27 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
 
     console.log('selected device: ', selectedDevice.id);
 
-    manager.current.connectToDevice(selectedDevice.id);
+    const device = await manager.current.connectToDevice(selectedDevice.id);
+
+    console.log('device: ', device.serviceUUIDs);
+
+    const full = await device.discoverAllServicesAndCharacteristics();
+
+    console.log('full: ', full);
+
+    const services = await device.services();
+    console.log('services: ', services);
+    const uuid = await device.characteristicsForService(services[4].uuid);
+
+    console.log('characteristics: ', uuid);
+
+    const writing = await device.writeCharacteristicWithoutResponseForService(
+      services[4].uuid,
+      uuid[0].uuid,
+      some_test_data,
+    );
+
+    console.log('writing: ', writing);
 
     // selectedDevice
     //   .connect()
@@ -164,17 +186,30 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     }
   };
 
-  useEffect(() => {
-    manager.current = new BleManager();
-    console.log('manager: ', manager.current);
+  useEffect(
+    () => {
+      // const checkBluetoothState = async (manager) => {
+      //   const bleState = (await manager.state()) === 'PoweredOn';
+      //   setIsBleOn(bleState);
+      // };
 
-    startScanning();
+      manager.current = new BleManager();
 
-    return () => {
-      clearInterval(stopScanningTimer.current);
-      stopScanning();
-    };
-  }, []);
+      // checkBluetoothState(manager.current);
+
+      // if (isBleOn) {
+      startScanning();
+      // }
+
+      return () => {
+        clearInterval(stopScanningTimer.current);
+        stopScanning();
+      };
+    },
+    [
+      /* isBleOn */
+    ],
+  );
 
   return (
     <Modal

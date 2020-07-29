@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  createRef,
-  useCallback,
-} from 'react';
+import React, {useEffect, useState, useRef, createRef} from 'react';
 import {
   View,
   ScrollView,
@@ -108,9 +102,6 @@ const PolylinesMenu = ({buildPolyline}) => {
           style={[styles.menuControls, styles.deleteItemsContol]}
           onPress={() => {
             dispatch(deleteManyPolylines(selectedList));
-            selectedList.map((item) =>
-              console.log('id to delete item: ', item),
-            );
           }}>
           <Icon name={'delete'} size={25} color="#FFF" />
           <Text style={[styles.menuControlsLabels, styles.deleteItemsLabel]}>
@@ -178,7 +169,6 @@ const PolylinesMenu = ({buildPolyline}) => {
                 style={[commonStyles.listItemControls, styles.listControls]}>
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('collectionRef: ', collectionRef);
                     collectionRef.current[index].current.focus();
                   }}>
                   <Icon name={'edit'} size={25} color="#000" />
