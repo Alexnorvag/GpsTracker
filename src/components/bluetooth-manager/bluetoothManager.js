@@ -93,7 +93,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
 
     const device = await manager.current.connectToDevice(selectedDevice.id);
 
-    console.log('device: ', device.serviceUUIDs);
+    console.log('device: ', device);
 
     const full = await device.discoverAllServicesAndCharacteristics();
 
@@ -101,16 +101,15 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
 
     const services = await device.services();
     console.log('services: ', services);
-    const uuid = await device.characteristicsForService(services[4].uuid);
 
-    console.log('characteristics: ', uuid);
+    const characteristics = await device.characteristicsForService(services[3].uuid);
+    console.log('characteristics: ', characteristics);
 
-    const writing = await device.writeCharacteristicWithoutResponseForService(
-      services[4].uuid,
-      uuid[0].uuid,
+    const writing = await device.writeCharacteristicWithResponseForService(
+      services[3].uuid,
+      characteristics[0].uuid,
       some_test_data,
     );
-
     console.log('writing: ', writing);
 
     // selectedDevice
