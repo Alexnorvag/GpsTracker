@@ -21,6 +21,7 @@
     "react-native-base64": "^0.1.0",
     "react-native-ble-plx": "^2.0.0",
     "react-native-bottom-toolbar": "^4.3.0",
+    "react-native-fs": "^2.16.6",
     "react-native-local-mongodb": "^2.2.9",
     "react-native-side-menu-updated": "^1.2.1",
     "react-native-status-bar-height": "^2.5.0",
