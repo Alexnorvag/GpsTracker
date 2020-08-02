@@ -225,17 +225,43 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await RNFS.readDir(
-      // const data = await RNFS.readFile(
-        `${RNFS.DocumentDirectoryPath}`,
-        // 'file://components/bluetooth-manager/mountains.png',
-        // 'base64',
-      ).then((res) => {
-        return res;
-      });
-      console.log('data image: ', data);
-    };
-    console.log(`path: ${RNFS.DocumentDirectoryPath}`);
+      const data = await RNFS.readDir(RNFS.DocumentDirectoryPath)
+        .then((result) => {
+          console.log('GOT RESULT', result);
+      
+          // stat the first file
+          return Promise.all([RNFS.stat(result[0].path), result[0].path]);
+        })
+        .then((statResult) => {
+          console.log('stat result: ', statResult)
+          if (statResult[0].isFile()) {
+            // if we have a file, read it
+            return RNFS.readFile(statResult[1], 'utf8');
+          }
+      
+          return 'no file';
+        })
+        .then((contents) => {
+          // log the file contents
+          console.log(contents);
+        })
+        .catch((err) => {
+          console.log(err.message, err.code);
+        });
+    // console.log(`path: ${RNFS.MainBundlePath}`);
+    //   const data = await RNFS.readDir(
+    //   // const data = await RNFS.readFile(
+    //     `/data/user/0/com.gpstracker`,
+    //     // `${RNFS.DocumentDirectoryPath}`,
+    //     // 'file://components/bluetooth-manager/mountains.png',
+    //     // 'base64',
+    //   ).then((res) => {
+    //     return res;
+    //   });
+    //   console.log('data image: ', data);
+    console.log('data image: ', data);
+  };
+    console.log(`path: ${RNFS.MainBundlePath}`);
 
     fetchData();
   }, []);
