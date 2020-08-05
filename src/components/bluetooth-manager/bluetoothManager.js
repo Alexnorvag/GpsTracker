@@ -233,7 +233,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
           return Promise.all([RNFS.stat(result[0].path), result[0].path]);
         })
         .then((statResult) => {
-          console.log('stat result: ', statResult)
+          console.log('stat result not working: ', statResult)
           if (statResult[0].isFile()) {
             // if we have a file, read it
             return RNFS.readFile(statResult[1], 'utf8');
