@@ -126,7 +126,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
       // base64Icon,
       some_test_data,
     );
-    console.log('writing: ', writing);
+    console.log('writing file: ', writing);
 
     // selectedDevice
     //   .connect()
