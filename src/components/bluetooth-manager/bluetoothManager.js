@@ -271,7 +271,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
         //     console.log(err.message);
         //   });
 
-        console.log('res: ', res);
+        console.log('res base64 file: ', res);
       } else {
         console.log('PROD MODE: ');
       }
