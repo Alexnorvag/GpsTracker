@@ -26,8 +26,9 @@ const PolylinesMenu = ({buildPolyline}) => {
   const [selectedList, setSelectedList] = useState([]);
   const [selectedItemId, setSelectedItemId] = useState('');
   const [textItemValue, setTextItemValue] = useState('');
+  const [isCollectionEmpty, setIsCollectionEmpty] = useState(true);
   const polylines = useSelector(selectAllPolylines);
-  const collectionRef = useRef(polylines.map(() => createRef()));
+  const collectionRef = useRef([]);
 
   const dispatch = useDispatch();
 
@@ -70,9 +71,12 @@ const PolylinesMenu = ({buildPolyline}) => {
     selectedList,
   ]);
 
-  // useEffect(() => {
-  //   console.log('polylines: ', polylines);
-  // }, [polylines]);
+  useEffect(() => {
+    if (!_.isEmpty(polylines) && isCollectionEmpty) {
+      collectionRef.current = polylines.map(() => createRef());
+      setIsCollectionEmpty(false);
+    }
+  }, [polylines]);
 
   return (
     <View style={styles.menuContainer}>
@@ -98,9 +102,6 @@ const PolylinesMenu = ({buildPolyline}) => {
           style={[styles.menuControls, styles.deleteItemsContol]}
           onPress={() => {
             dispatch(deleteManyPolylines(selectedList));
-            selectedList.map((item) =>
-              console.log('id to delete item: ', item),
-            );
           }}>
           <Icon name={'delete'} size={25} color="#FFF" />
           <Text style={[styles.menuControlsLabels, styles.deleteItemsLabel]}>

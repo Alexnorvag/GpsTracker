@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, SafeAreaView, StatusBar} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  TouchableOpacity,
+} from 'react-native';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import {getStatusBarHeight} from 'react-native-status-bar-height';
 
@@ -62,7 +69,7 @@ const App = () => {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    paddingTop: getStatusBarHeight(),
+    paddingTop: getStatusBarHeight(true),
     flexDirection: 'column',
     backgroundColor: '#FFF',
   },

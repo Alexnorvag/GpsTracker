@@ -7,21 +7,37 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Alert,
+  Image,
 } from 'react-native';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 import Icon from 'react-native-vector-icons/AntDesign';
+
 import {BleManager} from 'react-native-ble-plx';
+import base64 from 'react-native-base64';
+import RNFS from 'react-native-fs';
+
 import {IS_ANDROID, BLUETOOTH_CONFIG} from '../../utils';
 
-const VEHICLE_MAC = 'DA:BB:1D:A0:FA:FD';
+const img = require('./mountains.png');
 
-const CTLR_SVC = 'B33EBCE4-26F5-8752-FA0A-C0EE68663DA1';
-const CTLR_XTIC = '0000180a-0000-1000-8000-00805f9b34fb';
+// const some_test_data = base64.encode(img);
+const some_test_data = base64.encode('Testing some string to encode to base64');
+
+const base64Icon =
+  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAwBQTFRF7c5J78kt+/Xm78lQ6stH5LI36bQh6rcf7sQp671G89ZZ8c9V8c5U9+u27MhJ/Pjv9txf8uCx57c937Ay5L1n58Nb67si8tVZ5sA68tJX/Pfr7dF58tBG9d5e8+Gc6chN6LM+7spN1pos6rYs6L8+47hE7cNG6bQc9uFj7sMn4rc17cMx3atG8duj+O7B686H7cAl7cEm7sRM26cq/vz5/v767NFY7tJM78Yq8s8y3agt9dte6sVD/vz15bY59Nlb8txY9+y86LpA5LxL67pE7L5H05Ai2Z4m58Vz89RI7dKr+/XY8Ms68dx/6sZE7sRCzIEN0YwZ67wi6rk27L4k9NZB4rAz7L0j5rM66bMb682a5sJG6LEm3asy3q0w3q026sqC8cxJ6bYd685U5a457cIn7MBJ8tZW7c1I7c5K7cQ18Msu/v3678tQ3aMq7tNe6chu6rgg79VN8tNH8c0w57Q83akq7dBb9Nld9d5g6cdC8dyb675F/v327NB6////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/LvB3QAAAMFJREFUeNpiqIcAbz0ogwFKm7GgCjgyZMihCLCkc0nkIAnIMVRw2UhDBGp5fcurGOyLfbhVtJwLdJkY8oscZCsFPBk5spiNaoTC4hnqk801Qi2zLQyD2NlcWWP5GepN5TOtSxg1QwrV01itpECG2kaLy3AYiCWxcRozQWyp9pNMDWePDI4QgVpbx5eo7a+mHFOqAxUQVeRhdrLjdFFQggqo5tqVeSS456UEQgWE4/RBboxyC4AKCEI9Wu9lUl8PEGAAV7NY4hyx8voAAAAASUVORK5CYII=';
+
+// const base64Icon =
+//   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAwBQTFRF7c5J78kt+/Xm78lQ6stH5LI36bQh6rcf7sQp671G89ZZ8c9V8c5U9+u27MhJ/Pjv9txf8uCx57c937Ay5L1n58Nb67si8tVZ5sA68tJX/Pfr7dF58tBG9d5e8+Gc6chN6LM+7spN1pos6rYs6L8+47hE7cNG6bQc9uFj7sMn4rc17cMx3atG8duj+O7B686H7cAl7cEm7sRM26cq/vz5/v767NFY7tJM78Yq8s8y3agt9dte6sVD/vz15bY59Nlb8txY9+y86LpA5LxL67pE7L5H05Ai2Z4m58Vz89RI7dKr+/XY8Ms68dx/6sZE7sRCzIEN0YwZ67wi6rk27L4k9NZB4rAz7L0j5rM66bMb682a5sJG6LEm3asy3q0w3q026sqC8cxJ6bYd685U5a457cIn7MBJ8tZW7c1I7c5K7cQ18Msu/v3678tQ3aMq7tNe6chu6rgg79VN8tNH8c0w57Q83akq7dBb9Nld9d5g6cdC8dyb675F/v327NB6////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/LvB3QAAAMFJREFUeNpiqIcAbz0ogwFKm7GgCjgyZMihCLCkc0nkIAnIMVRw2UhDBGp5fcurGOyLfbhVtJwLdJkY8oscZCsFPBk5spiNaoTC4hnqk801Qi2zLQyD2NlcWWP5GepN5TOtSxg1QwrV01itpECG2kaLy3AYiCWxcRozQWyp9pNMDWePDI4QgVpbx5eo7a+mHFOqAxUQVeRhdrLjdFFQggqo5tqVeSS456UEQgWE4/RBboxyC4AKCEI9Wu9lUl8PEGAAV7NY4hyx8voAAAAASUVORK5CYII=';
 
 const BluetoothManager = ({modalVisible, changeModalState}) => {
   const [info, setInfo] = useState('');
   const [values, setValues] = useState({});
   const [devices, setDevices] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
+  const [im, setIm] = useState(null);
+  const [testetFile, setTestedFile] = useState(null);
+  // const [isBleOn, setIsBleOn] = useState(false);
   const _devices = useRef([]);
   const manager = useRef({});
   const stopScanningTimer = useRef(null);
@@ -56,7 +72,7 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     manager.current.startDeviceScan(null, null, (error, device) => {
       setInfo('Scanning...');
       setIsScanning(true);
-      console.log('serviceUUIDs: ', device)
+      console.log('serviceUUIDs: ', device);
 
       if (device && !isDeviceExist(_devices.current, device)) {
         _devices.current = [..._devices.current, device];
@@ -65,7 +81,13 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
       setDevices(_devices.current);
 
       if (error) {
-        setError(error.message);
+        Alert.alert(
+          `Ooops! ${error.message}.`,
+          `Try to turn on your bluetooth.`,
+          // `Say, "Karisha shines as a Sun." 😎 If doesn't helped just try to turn on your bluetooth.`,
+          [{text: 'OK 👨‍🔧'}],
+          {cancelable: true},
+        );
         return;
       }
     });
@@ -73,16 +95,38 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     stopScanningTimer.current = setTimeout(stopScanning, 20000);
   };
 
-  const connectToDevice = (selectedDevice) => {
+  const connectToDevice = async (selectedDevice) => {
     const deviceName =
       selectedDevice.localname || selectedDevice.name || selectedDevice.id;
     // console.log('($*)!"(*)($!)"($: ', selectedDevice.serviceUUIDs)
     // stopScanning();
     setInfo(`Connecting to ${deviceName}`);
 
-    console.log('selected device: ', selectedDevice.id)
+    console.log('selected device: ', selectedDevice.id);
 
-    manager.current.connectToDevice(selectedDevice.id);
+    const device = await manager.current.connectToDevice(selectedDevice.id);
+
+    console.log('device: ', device);
+
+    const full = await device.discoverAllServicesAndCharacteristics();
+
+    console.log('full: ', full);
+
+    const services = await device.services();
+    console.log('services: ', services);
+
+    const characteristics = await device.characteristicsForService(
+      services[3].uuid,
+    );
+    console.log('characteristics: ', characteristics);
+
+    const writing = await device.writeCharacteristicWithResponseForService(
+      services[3].uuid,
+      characteristics[0].uuid,
+      // base64Icon,
+      some_test_data,
+    );
+    console.log('writing file: ', writing);
 
     // selectedDevice
     //   .connect()
@@ -157,16 +201,83 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
     }
   };
 
+  useEffect(
+    () => {
+      // const checkBluetoothState = async (manager) => {
+      //   const bleState = (await manager.state()) === 'PoweredOn';
+      //   setIsBleOn(bleState);
+      // };
+
+      manager.current = new BleManager();
+
+      // checkBluetoothState(manager.current);
+
+      // if (isBleOn) {
+      startScanning();
+      // }
+
+      return () => {
+        clearInterval(stopScanningTimer.current);
+        stopScanning();
+      };
+    },
+    [
+      /* isBleOn */
+    ],
+  );
+
   useEffect(() => {
-    manager.current = new BleManager();
-    console.log('manager: ', manager.current);
+    const fetchData = async () => {
+      if (__DEV__) {
+        console.log('DEV MODE: ');
+        // get a list of files and directories in the main bundle
+        const res = await RNFS.readDir(RNFS.DocumentDirectoryPath) // On Android, use "RNFS.DocumentDirectoryPath" (MainBundlePath is not defined)
+          .then((result) => {
+            console.log('GOT RESULT', result);
 
-    startScanning();
+            // stat the first file
+            return Promise.all([RNFS.stat(result[7].path), result[7].path]);
+          })
+          .then(async (statResult) => {
+            console.log('stat: ', statResult);
+            if (statResult[0].isFile()) {
+              // if we have a file, read it
+              const file = await RNFS.readFile(statResult[1], 'base64');
+              console.log('file: ', file);
+              setTestedFile(file);
+              return file;
+            }
 
-    return () => {
-      clearInterval(stopScanningTimer.current);
-      stopScanning();
+            return 'no file';
+          })
+          .then((contents) => {
+            // log the file contents
+            setIm(contents);
+            console.log(contents);
+          })
+          .catch((err) => {
+            console.log(err.message, err.code);
+          });
+
+        // const res = await RNFS.writeFile(
+        //   `${RNFS.DocumentDirectoryPath}/moun.png`,
+        //   base64Icon,
+        //   'base64',
+        // )
+        //   .then((success) => {
+        //     console.log('FILE WRITTEN!');
+        //   })
+        //   .catch((err) => {
+        //     console.log(err.message);
+        //   });
+
+        console.log('res base64: ', res);
+      } else {
+        console.log('PROD MODE: ');
+      }
     };
+
+    fetchData();
   }, []);
 
   return (
@@ -186,6 +297,19 @@ const BluetoothManager = ({modalVisible, changeModalState}) => {
             </TouchableOpacity>
           </View>
         )}
+        <Image
+          style={{
+            width: 100,
+            height: 50,
+            resizeMode: 'contain',
+            borderWidth: 1,
+            borderColor: 'red',
+          }}
+          // source={im}
+          // source={img}
+          // source={{uri: base64Icon}}
+          source={{uri: `data:image/jpeg;base64,${im}`}}
+        />
         <View style={styles.infoTextWrapper}>
           <Text style={styles.infoText}>{info}</Text>
           {isScanning && (
@@ -223,8 +347,8 @@ const styles = StyleSheet.create({
   infoWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    top: IS_ANDROID ? 0 : 40,
-    paddingVertical: 100,
+    top: getStatusBarHeight(true),
+    paddingVertical: 10,
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: {
